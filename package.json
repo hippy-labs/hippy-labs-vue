@@ -25,7 +25,8 @@
     "@vue/runtime-core": "3.4.32",
     "@vue/shared": "3.4.32",
     "vue": "3.4.32",
-    "vue-router": "^4.0.12"
+    "vue-router": "^4.0.12",
+    "typescript": "^5.1.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.0",
@@ -45,7 +46,6 @@
     "@hippy/rejection-tracking-polyfill": "^1.0.0",
     "@hippy/vue-css-loader": "v3.3-latest",
     "@vitejs/plugin-vue": "^1.9.4",
-    "@vue/cli-service": "^4.5.19",
     "@vue/compiler-sfc": "3.4.32",
     "babel-loader": "^8.1.0",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
@@ -56,7 +56,7 @@
     "file-loader": "^4.3.0",
     "less": "^4.1.2",
     "less-loader": "^7.1.0",
-    "shelljs": "^0.8.5",
+    "shelljs": "^0.10.0",
     "terser": "^4.8.0",
     "ts-loader": "^8.4.0",
     "url-loader": "^4.0.0",
