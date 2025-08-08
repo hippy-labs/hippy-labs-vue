@@ -152,6 +152,7 @@ module.exports = {
       const aliases = {
         src: path.resolve('./src'),
         "@hippy/vue-next": path.resolve("./packages/hippy-vue-next/"),
+        "@hippy/hippy-vue-next-style-parser": path.resolve("./packages/hippy-vue-next-style-parser/"),
       };
       return aliases;
     })(),
