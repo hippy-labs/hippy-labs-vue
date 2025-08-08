@@ -24,7 +24,7 @@ import {
   parseCSS,
   translateColor,
   getCssMap,
-} from '@hippy-vue-next-style-parser/index';
+} from '@hippy/hippy-vue-next-style-parser';
 import {
   type Component,
   type ComponentPublicInstance,

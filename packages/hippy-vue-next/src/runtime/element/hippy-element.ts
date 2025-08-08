@@ -24,7 +24,7 @@ import {
   getCssMap,
   type PropertiesMapType,
   type StyleNode,
-} from '@hippy-vue-next-style-parser/index';
+} from '@hippy/hippy-vue-next-style-parser';
 import { toRaw } from '@vue/runtime-core';
 import { isFunction, isString } from '@vue/shared';
 

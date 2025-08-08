@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { translateColor, getCssMap, type StyleNode } from '@hippy-vue-next-style-parser/index';
+import { translateColor, getCssMap, type StyleNode } from '@hippy/hippy-vue-next-style-parser';
 import type { NeedToTyped, CallbackType, NativeInterfaceMap } from '../../types';
 import { HIPPY_VUE_VERSION } from '../../config';
 import { isStyleMatched, trace, warn, getBeforeLoadStyle } from '../../util';

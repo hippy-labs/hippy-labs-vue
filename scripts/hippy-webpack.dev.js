@@ -151,28 +151,8 @@ module.exports = {
     alias: (() => {
       const aliases = {
         src: path.resolve('./src'),
+        "@hippy/vue-next": path.resolve("./packages/hippy-vue-next/"),
       };
-
-      // If @vue/runtime-core was built exist in packages directory then make an alias
-      // Remove the section if you don't use it
-      const hippyVueRuntimeCorePath = path.resolve(__dirname, '../../../packages/hippy-vue-next/node_modules/@vue/runtime-core');
-      if (fs.existsSync(path.resolve(hippyVueRuntimeCorePath, 'index.js'))) {
-        console.warn(`* Using the @vue/runtime-core in ${hippyVueRuntimeCorePath} as vue alias`);
-        aliases['@vue/runtime-core'] = hippyVueRuntimeCorePath;
-      } else {
-        console.warn('* Using the @vue/runtime-core defined in package.json');
-      }
-
-      // If @hippy/vue-next was built exist in packages directory then make an alias
-      // Remove the section if you don't use it
-      const hippyVueNextPath = path.resolve(__dirname, '../../../packages/hippy-vue-next/dist');
-      if (fs.existsSync(path.resolve(hippyVueNextPath, 'index.js'))) {
-        console.warn(`* Using the @hippy/vue-next in ${hippyVueNextPath} as @hippy/vue-next alias`);
-        aliases['@hippy/vue-next'] = hippyVueNextPath;
-      } else {
-        console.warn('* Using the @hippy/vue-next defined in package.json');
-      }
-
       return aliases;
     })(),
   },
