@@ -19,8 +19,8 @@
  */
 
 
-import { camelize } from 'shared/util';
-import { tryConvertNumber, warn } from '@vue/util/index';
+import { camelize } from "./utils/utils";
+import { tryConvertNumber } from "./utils/utils";
 import translateColor from './color-parser';
 
 const PROPERTIES_MAP: any = {
@@ -352,7 +352,7 @@ function parseCSS(css: any, options: any) {
     } else if (direction && typeof LINEAR_GRADIENT_DIRECTION_MAP[direction] !== 'undefined') { // direction description
       angle = LINEAR_GRADIENT_DIRECTION_MAP[direction];
     } else {
-      warn('linear-gradient direction or angle is invalid, default value [to bottom] would be used');
+      console.warn('linear-gradient direction or angle is invalid, default value [to bottom] would be used');
     }
     return angle;
   }
@@ -377,7 +377,7 @@ function parseCSS(css: any, options: any) {
         color: translateColor(color),
       };
     }
-    warn('linear-gradient color stop is invalid');
+    console.warn('linear-gradient color stop is invalid');
   }
 
   /**

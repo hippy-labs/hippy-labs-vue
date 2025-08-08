@@ -20,11 +20,20 @@
 
 import crypto from 'crypto';
 import { getOptions } from 'loader-utils';
-import { GLOBAL_STYLE_NAME, GLOBAL_DISPOSE_STYLE_NAME } from '@vue/runtime/constants';
 import parseCSS from './css-parser';
 import translateColor, { names as colorNames } from './color-parser';
 
 let sourceId = 0;
+
+
+/**
+ * hippy-vue-css-loader will translate the CSS texts to be AST
+ * and attached at global[GLOBAL_STYLE_NAME].
+ * when use HMR, the outdated chunk style will be attached at
+ * global[GLOBAL_DISPOSE_STYLE_NAME].
+ */
+const GLOBAL_STYLE_NAME = "__HIPPY_VUE_STYLES__";
+const GLOBAL_DISPOSE_STYLE_NAME = "__HIPPY_VUE_DISPOSE_STYLES__";
 
 /**
  * Convert the CSS text to AST that able to parse by selector parser.
