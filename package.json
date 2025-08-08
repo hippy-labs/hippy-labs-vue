@@ -16,18 +16,16 @@
     "hippy:vendor:hermes": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.hermes.ios-vendor.js --config ./scripts/hippy-webpack.hermes.android-vendor.js",
     "hippy:build:hermes": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.hermes.ios.js --config ./scripts/hippy-webpack.hermes.android.js",
     "ohos:vendor": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.ohos-vendor.js",
-    "ohos:build": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.ohos.js"
+    "ohos:build": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.ohos.js",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@hippy/hippy-vue-next-style-parser": "3.3.2",
     "@hippy/vue-next": "v3.3-latest",
-    "@hippy/vue-router-next-history": "0.0.1",
-    "@hippy/web-renderer": "latest",
     "@vue/runtime-core": "3.4.32",
     "@vue/shared": "3.4.32",
     "typescript": "^5.1.3",
-    "vue": "3.4.32",
-    "vue-router": "^4.0.12"
+    "vue": "3.4.32"
   },
   "devDependencies": {
     "@babel/core": "^7.12.0",
@@ -56,8 +54,11 @@
     "esbuild": "^0.13.14",
     "esbuild-loader": "^2.18.0",
     "file-loader": "^4.3.0",
+    "husky": "^8.0.0",
     "less": "^4.1.2",
     "less-loader": "^7.1.0",
+    "lint-staged": "^16.1.4",
+    "prettier": "^3.6.2",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-buble": "^0.19.8",
     "rollup-plugin-commonjs": "^10.1.0",
@@ -82,5 +83,8 @@
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^4.7.2",
     "webpack-obfuscator": "^3.5.1"
+  },
+  "lint-staged": {
+    "*.{js,ts,vue}": "prettier --write"
   }
 }
