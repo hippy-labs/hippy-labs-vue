@@ -18,7 +18,8 @@
  * limitations under the License.
  */
 
-import type { HippyElement } from '../runtime/element/hippy-element';
+import type { HippyElement } from "../runtime/element/hippy-element";
+import { info } from "../util/log";
 
 /**
  * Set the class attribute to an element
@@ -27,22 +28,24 @@ import type { HippyElement } from '../runtime/element/hippy-element';
  * @param newValue - new value
  */
 export function patchClass(el: HippyElement, newValue: string): void {
+  info("tag: " + el.tagName + " patchClass:", " newValue:", newValue);
+
   let value = newValue;
 
   if (value === null) {
-    value = '';
+    value = "";
   }
 
   // directly setting className should be faster than setAttribute in theory
   // if this is an element during a transition, take the temporary transition classes into account.
   // the animation class will be processed later
   // const transitionClasses = (el as ElementWithTransition)._vtc;
-  const transitionClasses = '';
+  const transitionClasses = "";
   if (transitionClasses) {
     value = (
       value ? [value, ...transitionClasses] : [...transitionClasses]
-    ).join(' ');
+    ).join(" ");
   }
 
-  el.setAttribute('class', value);
+  el.setAttribute("class", value);
 }

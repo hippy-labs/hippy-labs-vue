@@ -24,49 +24,64 @@ import {
   parseCSS,
   translateColor,
   getCssMap,
-} from '@hippy/hippy-vue-next-style-parser';
+} from "@hippy/hippy-vue-next-style-parser";
 import {
   type Component,
   type ComponentPublicInstance,
   type App,
   createRenderer,
   createHydrationRenderer,
-} from '@vue/runtime-core';
-import { isFunction } from '@vue/shared';
+} from "@vue/runtime-core";
+import { isFunction } from "@vue/shared";
 
-import type { NeedToTyped, CallbackType, CommonMapParams, NativeInterfaceMap, SsrNode, SsrNodeProps } from './types';
-import { BackAndroid } from './android-back';
-import BuiltInComponent from './built-in-component';
-import { drawIphoneStatusBar } from './iphone';
-import HippyNativeComponents, { isNativeTag, type AnimationInstance } from './native-component';
-import { nodeOps } from './node-ops';
-import { patchProp } from './patch-prop';
-import { getTagComponent, registerElement, type TagComponent, type ElementComponent } from './runtime/component';
-import { HippyDocument } from './runtime/document/hippy-document';
-import type { HippyElement } from './runtime/element/hippy-element';
-import type { HippyInputElement } from './runtime/element/hippy-input-element';
-import type { HippyListElement } from './runtime/element/hippy-list-element';
-import { EventBus } from './runtime/event/event-bus';
-import { Native } from './runtime/native';
-import type { NativeApiType, MeasurePosition, DOMRect } from './runtime/native';
-import './runtime/event/hippy-event-dispatcher';
-import './runtime/websocket/websocket';
-import type { HippyNode } from './runtime/node/hippy-node';
+import type {
+  NeedToTyped,
+  CallbackType,
+  CommonMapParams,
+  NativeInterfaceMap,
+  SsrNode,
+  SsrNodeProps,
+} from "./types";
+import { BackAndroid } from "./android-back";
+import BuiltInComponent from "./built-in-component";
+import { drawIphoneStatusBar } from "./iphone";
+import HippyNativeComponents, {
+  isNativeTag,
+  type AnimationInstance,
+} from "./native-component";
+import { nodeOps } from "./node-ops";
+import { patchProp } from "./patch-prop";
+import {
+  getTagComponent,
+  registerElement,
+  type TagComponent,
+  type ElementComponent,
+} from "./runtime/component";
+import { HippyDocument } from "./runtime/document/hippy-document";
+import type { HippyElement } from "./runtime/element/hippy-element";
+import type { HippyInputElement } from "./runtime/element/hippy-input-element";
+import type { HippyListElement } from "./runtime/element/hippy-list-element";
+import { EventBus } from "./runtime/event/event-bus";
+import { Native } from "./runtime/native";
+import type { NativeApiType, MeasurePosition, DOMRect } from "./runtime/native";
+import "./runtime/event/hippy-event-dispatcher";
+import "./runtime/websocket/websocket";
+import type { HippyNode } from "./runtime/node/hippy-node";
 import {
   setBeforeLoadStyle,
   setSilent,
   setTrimWhitespace,
   trace,
   setBeforeRenderToNative,
-} from './util';
-import type { HippyCachedInstanceType } from './util/instance';
+} from "./util";
+import type { HippyCachedInstanceType } from "./util/instance";
 import {
   getHippyCachedInstance,
   setHippyCachedInstance,
   setHippyCachedInstanceParams,
-} from './util/instance';
-import { type ScreenSize, setScreenSize } from './util/screen';
-import { convertToHippyElementTree } from './hydration';
+} from "./util/instance";
+import { type ScreenSize, setScreenSize } from "./util/screen";
+import { convertToHippyElementTree } from "./hydration";
 
 /**
  * Hippy App type, override the mount method of Vue
@@ -75,7 +90,7 @@ import { convertToHippyElementTree } from './hydration';
  */
 export type HippyApp = App & {
   $start: (
-    afterCallback?: CallbackType
+    afterCallback?: CallbackType,
   ) => Promise<{ superProps: NeedToTyped; rootViewId: number }>;
 };
 
@@ -124,13 +139,17 @@ export interface HippyAppOptions {
   // set whether to trim text whitespace
   trimWhitespace?: boolean;
   // ssr rendered node list
-  ssrNodeList?: SsrNode[],
+  ssrNodeList?: SsrNode[];
 }
 
 // base screen width
 const defaultRatioBaseWidth = 750;
 
-const LOG_TYPE = ['%c[Hippy-Vue-Next process.env.HIPPY_VUE_VERSION]%c', 'color: #4fc08d; font-weight: bold', 'color: auto; font-weight: auto'];
+const LOG_TYPE = [
+  "%c[Hippy-Vue-Next process.env.HIPPY_VUE_VERSION]%c",
+  "color: #4fc08d; font-weight: bold",
+  "color: auto; font-weight: auto",
+];
 
 /**
  * set the status bar for iOS
@@ -161,13 +180,14 @@ function setIOSNativeBar(
  * create root node
  */
 function createRootNode(rootContainer: string): HippyElement {
+  //👉 RootNode
   // Create the root node as the root of the entire hippy tree
-  const root: HippyElement = HippyDocument.createElement('div');
+  const root: HippyElement = HippyDocument.createElement("div");
   // The id value of the root node is set to the incoming parameter rootContainer
   root.id = rootContainer;
   // Set default style for root node
   root.style = {
-    display: 'flex',
+    display: "flex",
     flex: 1,
   };
 
@@ -200,7 +220,7 @@ export const createHippyApp = (
   // Because vue does not know these components, it needs to be registered as vue component
   hippyApp.use(HippyNativeComponents);
 
-  if (typeof options?.styleOptions?.beforeLoadStyle === 'function') {
+  if (typeof options?.styleOptions?.beforeLoadStyle === "function") {
     // If a style loading hook is set, save the custom style loading hook
     setBeforeLoadStyle(options.styleOptions.beforeLoadStyle);
   }
@@ -219,7 +239,7 @@ export const createHippyApp = (
   // rewrite mount method of vue
   hippyApp.mount = (rootContainer) => {
     // cache rootContainer first, used to determine whether it is the root node to insert node
-    setHippyCachedInstanceParams('rootContainer', rootContainer);
+    setHippyCachedInstanceParams("rootContainer", rootContainer);
     // create the root node
     // return an empty node when the hydrate is false
     // return a root node for a node tree, when the hydrate is true
@@ -229,7 +249,7 @@ export const createHippyApp = (
     // mount and get the instance
     const instance = mount(root, isHydrate, false);
     // cache Vue instance
-    setHippyCachedInstanceParams('instance', instance);
+    setHippyCachedInstanceParams("instance", instance);
     // set the status bar for iOS
     if (!isHydrate) {
       // in hydrate mode, insert status bar must be async otherwise cause hydration mismatch
@@ -240,45 +260,53 @@ export const createHippyApp = (
   };
 
   // return instance of HippyApp instance
-  hippyApp.$start = async (afterCallback?: CallbackType) => new Promise((resolve) => {
-    // call the interface provided by Native to register hippy
-    Native.hippyNativeRegister.regist(
-      options.appName,
-      (superProps: NeedToTyped) => {
-        // get the initialization parameters passed in by the native, login parameters
-        const { __instanceId__: rootViewId } = superProps;
+  hippyApp.$start = async (afterCallback?: CallbackType) =>
+    new Promise((resolve) => {
+      // call the interface provided by Native to register hippy
+      Native.hippyNativeRegister.regist(
+        options.appName,
+        (superProps: NeedToTyped) => {
+          // get the initialization parameters passed in by the native, login parameters
+          const { __instanceId__: rootViewId } = superProps;
 
-        trace(...LOG_TYPE, 'Start', options.appName, 'with rootViewId', rootViewId, superProps);
-        // when refreshing the app, need to remove the old instance first
-        const oldInstance = getHippyCachedInstance();
-        if (oldInstance?.app) {
-          oldInstance.app.unmount();
-        }
+          trace(
+            ...LOG_TYPE,
+            "Start",
+            options.appName,
+            "with rootViewId",
+            rootViewId,
+            superProps,
+          );
+          // when refreshing the app, need to remove the old instance first
+          const oldInstance = getHippyCachedInstance();
+          if (oldInstance?.app) {
+            oldInstance.app.unmount();
+          }
 
-        // cache initialization parameters
-        setHippyCachedInstance({
-          rootViewId, // id of root view returned by native, do not forget set style for root view
-          superProps, // initialization parameters returned by native
-          app: hippyApp,
-          ratioBaseWidth:
+          // cache initialization parameters
+          setHippyCachedInstance({
+            rootViewId, // id of root view returned by native, do not forget set style for root view
+            superProps, // initialization parameters returned by native
+            app: hippyApp,
+            ratioBaseWidth:
               options?.styleOptions?.ratioBaseWidth ?? defaultRatioBaseWidth, // base screen width
-        });
+          });
 
-        const globalInitParams = {
-          superProps,
-          rootViewId,
-        };
+          const globalInitParams = {
+            superProps,
+            rootViewId,
+          };
 
-        // the initialization is complete, and return the initialization parameters returned
-        // by native. support callback && promise
-        if (isFunction(afterCallback)) {
-          afterCallback(globalInitParams);
-        } else {
-          resolve(globalInitParams);
-        }
-      },
-    );
-  });
+          // the initialization is complete, and return the initialization parameters returned
+          // by native. support callback && promise
+          if (isFunction(afterCallback)) {
+            afterCallback(globalInitParams);
+          } else {
+            resolve(globalInitParams);
+          }
+        },
+      );
+    });
 
   // return hippy vue instance
   return hippyApp;
@@ -338,7 +366,9 @@ export const _setBeforeRenderToNative = (hook, version) => {
     if (BEFORE_RENDER_TO_NATIVE_HOOK_VERSION === version) {
       setBeforeRenderToNative(hook);
     } else {
-      console.error('_setBeforeRenderToNative API had changed, the hook function will be ignored!');
+      console.error(
+        "_setBeforeRenderToNative API had changed, the hook function will be ignored!",
+      );
     }
   }
 };
@@ -365,8 +395,8 @@ export type {
   ScreenSize,
 };
 
-export * from './config';
-export * from './runtime/event/hippy-event';
+export * from "./config";
+export * from "./runtime/event/hippy-event";
 
 export {
   EventBus,

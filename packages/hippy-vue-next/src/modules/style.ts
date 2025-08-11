@@ -18,21 +18,18 @@
  * limitations under the License.
  */
 
-import { camelize } from '@vue/runtime-core';
-import { isString } from '@vue/shared';
+import { camelize } from "@vue/runtime-core";
+import { isString } from "@vue/shared";
 
-import { type HippyElement } from '../runtime/element/hippy-element';
-import type { NeedToTyped } from '../types';
-import { isNullOrUndefined } from '../util';
+import { type HippyElement } from "../runtime/element/hippy-element";
+import type { NeedToTyped } from "../types";
+import { isNullOrUndefined } from "../util";
+import { info } from "../util/log";
 
 // type of style
 type Style = string | Record<string, string | string[]> | null | undefined;
 
-function isStyleExisted(
-  el: HippyElement,
-  prev: Style,
-  next: Style,
-) {
+function isStyleExisted(el: HippyElement, prev: Style, next: Style) {
   const isElementNull = !el;
   const isPrevAndNextNull = !prev && !next;
   const isPrevEqualToNext = JSON.stringify(prev) === JSON.stringify(next);
@@ -54,6 +51,8 @@ export function patchStyle(
   const el = rawEl;
   const batchedStyles: NeedToTyped = {};
 
+  info("tag: " + el.tagName + "patchStyle: ", " prev:", prev, " next:", next);
+
   if (isStyleExisted(el, prev, next)) {
     // if the previous and next attributes are the same, skip the patch calculation.
     return;
@@ -63,7 +62,7 @@ export function patchStyle(
     el.removeStyle();
   } else if (isString(next)) {
     // in hippy, the styles are all array or Object types, and if it is a string, thrown an exception
-    throw new Error('Style is Not Object');
+    throw new Error("Style is Not Object");
   } else if (next) {
     // the new style is an array or Object, apply the new style to all
     // style is an array, so we do not update native instantly, we will update at the end
