@@ -18,39 +18,39 @@
  * limitations under the License.
  */
 
-
 import { camelize } from "./utils/utils";
 import { tryConvertNumber } from "./utils/utils";
-import translateColor from './color-parser';
+import translateColor from "./color-parser";
+import { info } from "./log";
 
 const PROPERTIES_MAP: any = {
-  textDecoration: 'textDecorationLine',
-  boxShadowOffset: 'shadowOffset',
-  boxShadowOffsetX: 'shadowOffsetX',
-  boxShadowOffsetY: 'shadowOffsetY',
-  boxShadowOpacity: 'shadowOpacity',
-  boxShadowRadius: 'shadowRadius',
-  boxShadowSpread: 'shadowSpread',
-  boxShadowColor: 'shadowColor',
-  caretColor: 'caret-color',
+  textDecoration: "textDecorationLine",
+  boxShadowOffset: "shadowOffset",
+  boxShadowOffsetX: "shadowOffsetX",
+  boxShadowOffsetY: "shadowOffsetY",
+  boxShadowOpacity: "shadowOpacity",
+  boxShadowRadius: "shadowRadius",
+  boxShadowSpread: "shadowSpread",
+  boxShadowColor: "shadowColor",
+  caretColor: "caret-color",
 };
 
 // linear-gradient direction description map
 const LINEAR_GRADIENT_DIRECTION_MAP: any = {
-  totop: '0',
-  totopright: 'totopright',
-  toright: '90',
-  tobottomright: 'tobottomright',
-  tobottom: '180', // default value
-  tobottomleft: 'tobottomleft',
-  toleft: '270',
-  totopleft: 'totopleft',
+  totop: "0",
+  totopright: "totopright",
+  toright: "90",
+  tobottomright: "tobottomright",
+  tobottom: "180", // default value
+  tobottomleft: "tobottomleft",
+  toleft: "270",
+  totopleft: "totopleft",
 };
 
 const DEGREE_UNIT = {
-  TURN: 'turn',
-  RAD: 'rad',
-  DEG: 'deg',
+  TURN: "turn",
+  RAD: "rad",
+  DEG: "deg",
 };
 
 const commentRegexp = /\/\*[^*]*\*+([^/*][^*]*\*+)*\//g;
@@ -59,15 +59,14 @@ const commentRegexp = /\/\*[^*]*\*+([^/*][^*]*\*+)*\//g;
  * Trim `str`.
  */
 function trim(str: any) {
-  return str ? str.trim() : '';
+  return str ? str.trim() : "";
 }
-
 
 /**
  * Adds non-enumerable parent node reference to each node.
  */
 function addParent(obj: any, parent: any) {
-  const isNode = obj && typeof obj.type === 'string';
+  const isNode = obj && typeof obj.type === "string";
   const childParent = isNode ? obj : parent;
   Object.keys(obj).forEach((k) => {
     const value = obj[k];
@@ -75,12 +74,12 @@ function addParent(obj: any, parent: any) {
       value.forEach((v) => {
         addParent(v, childParent);
       });
-    } else if (value && typeof value === 'object') {
+    } else if (value && typeof value === "object") {
       addParent(value, childParent);
     }
   });
   if (isNode) {
-    Object.defineProperty(obj, 'parent', {
+    Object.defineProperty(obj, "parent", {
       configurable: true,
       writable: true,
       enumerable: false,
@@ -100,12 +99,12 @@ function convertPxUnitToPt(value: any) {
     return value;
   }
   // If value unit is rpx, don't need to filter
-  if (typeof value === 'string' && value.endsWith('rpx')) {
+  if (typeof value === "string" && value.endsWith("rpx")) {
     return value;
   }
   // If value unit is px, change to use pt as 1:1.
-  if (typeof value === 'string' && value.endsWith('px')) {
-    const num = parseFloat(value.slice(0, value.indexOf('px')));
+  if (typeof value === "string" && value.endsWith("px")) {
+    const num = parseFloat(value.slice(0, value.indexOf("px")));
     if (!Number.isNaN(num)) {
       value = num;
     }
@@ -131,7 +130,7 @@ function parseCSS(css: any, options: any) {
   function updatePosition(str: any) {
     const lines = str.match(/\n/g);
     if (lines) lineno += lines.length;
-    const i = str.lastIndexOf('\n');
+    const i = str.lastIndexOf("\n");
     column = ~i ? str.length - i : column + str.length;
   }
 
@@ -141,6 +140,7 @@ function parseCSS(css: any, options: any) {
   function position() {
     const start = { line: lineno, column };
     return (node: any) => {
+      //👉 TODO
       node.position = new Position(start);
       whitespace();
       return node;
@@ -186,15 +186,17 @@ function parseCSS(css: any, options: any) {
    */
   function stylesheet() {
     const rulesList = rules();
-
-    return {
-      type: 'stylesheet',
+    const ret = {
+      type: "stylesheet",
       stylesheet: {
+        //👉 TODO
         source: options.source,
         rules: rulesList,
         parsingErrors: errorsList,
       },
     };
+    info("\nstylesheet: " + JSON.stringify(ret) + "\ncss: \n" + css + "\n");
+    return ret;
   }
 
   /**
@@ -220,12 +222,13 @@ function parseCSS(css: any, options: any) {
     whitespace();
     comments(rules);
     // eslint-disable-next-line no-cond-assign
-    while (css.length && css.charAt(0) !== '}' && (node = atrule() || rule())) {
+    while (css.length && css.charAt(0) !== "}" && (node = atrule() || rule())) {
       if (node !== false) {
         rules.push(node);
         comments(rules);
       }
     }
+    info("\nrules: " + JSON.stringify(rules) + "\ncss: \n" + css + "\n");
     return rules;
   }
 
@@ -248,6 +251,7 @@ function parseCSS(css: any, options: any) {
    */
   function whitespace() {
     match(/^\s*/);
+    info("\nwhitespace: " + "\ncss: \n" + css + "\n");
   }
 
   /**
@@ -269,26 +273,31 @@ function parseCSS(css: any, options: any) {
    */
   function comment() {
     const pos = position();
-    if (css.charAt(0) !== '/' || css.charAt(1) !== '*') {
+    if (css.charAt(0) !== "/" || css.charAt(1) !== "*") {
       return null;
     }
     let i = 2;
-    while (css.charAt(i) !== '' && (css.charAt(i) !== '*' || css.charAt(i + 1) !== '/')) {
+    while (
+      css.charAt(i) !== "" &&
+      (css.charAt(i) !== "*" || css.charAt(i + 1) !== "/")
+    ) {
       i += 1;
     }
     i += 2;
-    if (css.charAt(i - 1) === '') {
-      return error('End of comment missing');
+    if (css.charAt(i - 1) === "") {
+      return error("End of comment missing");
     }
     const str = css.slice(2, i - 2);
     column += 2;
     updatePosition(str);
     css = css.slice(i);
     column += 2;
-    return pos({
-      type: 'comment',
+    const ret = pos({
+      type: "comment",
       comment: str,
     });
+    info("\ncomment: " + JSON.stringify(ret) + "\ncss: \n" + css + "\n");
+    return ret;
   }
 
   /**
@@ -302,11 +311,15 @@ function parseCSS(css: any, options: any) {
     }
     /* @fix Remove all comments from selectors
      * http://ostermiller.org/findcomment.html */
-    return trim(m[0])
-      .replace(/\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*\/+/g, '')
-      .replace(/"(?:\\"|[^"])*"|'(?:\\'|[^'])*'/g, (m: any) => m.replace(/,/g, '\u200C'))
+    const ret = trim(m[0])
+      .replace(/\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*\/+/g, "")
+      .replace(/"(?:\\"|[^"])*"|'(?:\\'|[^'])*'/g, (m: any) =>
+        m.replace(/,/g, "\u200C"),
+      )
       .split(/\s*(?![^(]*\)),\s*/)
-      .map((s: any) => s.replace(/\u200C/g, ','));
+      .map((s: any) => s.replace(/\u200C/g, ","));
+    info("\nselector: " + ret + "\ncss: \n" + css + "\n");
+    return ret;
   }
 
   /**
@@ -316,8 +329,8 @@ function parseCSS(css: any, options: any) {
    */
   function convertToDegree(value: any, unit = DEGREE_UNIT.DEG) {
     const convertedNumValue = parseFloat(value);
-    let result = value || '';
-    const [, decimals] = value.split('.');
+    let result = value || "";
+    const [, decimals] = value.split(".");
     if (decimals && decimals.length > 2) {
       result = convertedNumValue.toFixed(2);
     }
@@ -328,7 +341,7 @@ function parseCSS(css: any, options: any) {
         break;
       // radius unit
       case DEGREE_UNIT.RAD:
-        result = `${(180 / Math.PI * convertedNumValue).toFixed(2)}`;
+        result = `${((180 / Math.PI) * convertedNumValue).toFixed(2)}`;
         break;
       default:
     }
@@ -340,19 +353,27 @@ function parseCSS(css: any, options: any) {
    * @param {string} value
    */
   function getLinearGradientAngle(value: any) {
-    const processedValue = (value || '').replace(/\s*/g, '').toLowerCase();
-    const reg = /^([+-]?(?=(?<digit>\d+))\k<digit>\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
+    const processedValue = (value || "").replace(/\s*/g, "").toLowerCase();
+    const reg =
+      /^([+-]?(?=(?<digit>\d+))\k<digit>\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
     const valueList = reg.exec(processedValue);
     if (!Array.isArray(valueList)) return;
     // default direction is to bottom, i.e. 180degree
-    let angle = '180';
+    let angle = "180";
     const [direction, angleValue, angleUnit] = valueList;
-    if (angleValue && angleUnit) { // angle value
+    if (angleValue && angleUnit) {
+      // angle value
       angle = convertToDegree(angleValue, angleUnit);
-    } else if (direction && typeof LINEAR_GRADIENT_DIRECTION_MAP[direction] !== 'undefined') { // direction description
+    } else if (
+      direction &&
+      typeof LINEAR_GRADIENT_DIRECTION_MAP[direction] !== "undefined"
+    ) {
+      // direction description
       angle = LINEAR_GRADIENT_DIRECTION_MAP[direction];
     } else {
-      console.warn('linear-gradient direction or angle is invalid, default value [to bottom] would be used');
+      console.warn(
+        "linear-gradient direction or angle is invalid, default value [to bottom] would be used",
+      );
     }
     return angle;
   }
@@ -362,7 +383,7 @@ function parseCSS(css: any, options: any) {
    * @param {string} value
    */
   function getLinearGradientColorStop(value: any) {
-    const processedValue = (value || '').replace(/\s+/g, ' ').trim();
+    const processedValue = (value || "").replace(/\s+/g, " ").trim();
     const [color, percentage] = processedValue.split(/\s+(?![^(]*?\))/);
     const percentageCheckReg = /^([+-]?\d+\.?\d*)%$/g;
     if (color && !percentageCheckReg.exec(color) && !percentage) {
@@ -373,11 +394,11 @@ function parseCSS(css: any, options: any) {
     if (color && percentageCheckReg.exec(percentage)) {
       return {
         // color stop ratio
-        ratio: parseFloat(percentage.split('%')[0]) / 100,
+        ratio: parseFloat(percentage.split("%")[0]) / 100,
         color: translateColor(color),
       };
     }
-    console.warn('linear-gradient color stop is invalid');
+    console.warn("linear-gradient color stop is invalid");
   }
 
   /**
@@ -389,9 +410,12 @@ function parseCSS(css: any, options: any) {
   function parseBackgroundImage(property: any, value: any) {
     let processedValue = value;
     let processedProperty = property;
-    if (value.indexOf('linear-gradient') === 0) {
-      processedProperty = 'linearGradient';
-      const valueString = value.substring(value.indexOf('(') + 1, value.lastIndexOf(')'));
+    if (value.indexOf("linear-gradient") === 0) {
+      processedProperty = "linearGradient";
+      const valueString = value.substring(
+        value.indexOf("(") + 1,
+        value.lastIndexOf(")"),
+      );
       const tokens = valueString.split(/,(?![^(]*?\))/);
       const colorStopList: any = [];
       processedValue = {};
@@ -403,7 +427,7 @@ function parseCSS(css: any, options: any) {
             processedValue.angle = angle;
           } else {
             // if angle ignored, default direction is to bottom, i.e. 180degree
-            processedValue.angle = '180';
+            processedValue.angle = "180";
             const colorObject = getLinearGradientColorStop(value);
             if (colorObject) colorStopList.push(colorObject);
           }
@@ -436,10 +460,10 @@ function parseCSS(css: any, options: any) {
     prop = trim(prop[0]);
     // :
     if (!match(/^:\s*/)) {
-      return error('property missing \':\'');
+      return error("property missing ':'");
     }
     // val
-    const propertyName = prop.replace(commentRegexp, '');
+    const propertyName = prop.replace(commentRegexp, "");
     const camelizedProperty = camelize(propertyName);
     let property = (() => {
       const property = PROPERTIES_MAP[camelizedProperty];
@@ -449,21 +473,21 @@ function parseCSS(css: any, options: any) {
       return camelizedProperty;
     })();
     const val = match(/^((?:'(?:\\'|.)*?'|"(?:\\"|.)*?"|\([^)]*?\)|[^};])+)/);
-    let value = val ? trim(val[0]).replace(commentRegexp, '') : '';
+    let value = val ? trim(val[0]).replace(commentRegexp, "") : "";
     switch (property) {
-      case 'backgroundImage': {
+      case "backgroundImage": {
         [property, value] = parseBackgroundImage(property, value);
         break;
       }
-      case 'transform': {
+      case "transform": {
         const regex = /(\w+\s*)(?:\(['"]?)(.*?)(?:['"]?\))/g;
         const oldValue = value;
         value = [];
         let group;
-        while (group = regex.exec(oldValue)) {
+        while ((group = regex.exec(oldValue))) {
           const key = group[1];
           let v = group[2];
-          if (v.indexOf('.') === 0) {
+          if (v.indexOf(".") === 0) {
             v = `0${v}`;
           }
 
@@ -474,14 +498,15 @@ function parseCSS(css: any, options: any) {
           const transform: any = {};
           transform[key] = v;
           value.push(transform);
-        };
+        }
         break;
       }
-      case 'fontWeight':
+      case "fontWeight":
         // Keep string and going on.
         break;
-      case 'textShadowOffset': {
-        const pos = value.split(' ')
+      case "textShadowOffset": {
+        const pos = value
+          .split(" ")
           .filter((v: any) => v)
           .map((v: any) => convertPxUnitToPt(v));
         const [width] = pos;
@@ -495,8 +520,9 @@ function parseCSS(css: any, options: any) {
         };
         break;
       }
-      case 'shadowOffset': {
-        const pos = value.split(' ')
+      case "shadowOffset": {
+        const pos = value
+          .split(" ")
           .filter((v: any) => v)
           .map((v: any) => convertPxUnitToPt(v));
         const [x] = pos;
@@ -511,8 +537,8 @@ function parseCSS(css: any, options: any) {
         };
         break;
       }
-      case 'collapsable':
-        value = value !== 'false';
+      case "collapsable":
+        value = value !== "false";
         break;
       default: {
         value = tryConvertNumber(value);
@@ -522,12 +548,15 @@ function parseCSS(css: any, options: any) {
     }
 
     const ret = pos({
-      type: 'declaration',
+      type: "declaration",
       value,
       property,
     });
-    // ;
+    //去掉分号 ;
     match(/^[;\s]*/);
+
+    info("\ndeclaration: " + JSON.stringify(ret) + "\ncss: \n" + css + "\n");
+
     return ret;
   }
 
@@ -536,7 +565,7 @@ function parseCSS(css: any, options: any) {
    */
   function declarations() {
     let decls: any = [];
-    if (!open()) return error('missing \'{\'');
+    if (!open()) return error("missing '{'");
     comments(decls);
     // declarations
     let decl;
@@ -550,7 +579,10 @@ function parseCSS(css: any, options: any) {
         comments(decls);
       }
     }
-    if (!close()) return error('missing \'}\'');
+    if (!close()) return error("missing '}'");
+
+    info("\ndeclarations: " + JSON.stringify(decls) + "\ncss: \n" + css + "\n");
+
     return decls;
   }
 
@@ -569,7 +601,7 @@ function parseCSS(css: any, options: any) {
       return null;
     }
     return pos({
-      type: 'keyframe',
+      type: "keyframe",
       values: vals,
       declarations: declarations(),
     });
@@ -588,19 +620,19 @@ function parseCSS(css: any, options: any) {
     // identifier
     m = match(/^([-\w]+)\s*/);
     if (!m) {
-      return error('@keyframes missing name');
+      return error("@keyframes missing name");
     }
     const name = m[1];
-    if (!open()) return error('@keyframes missing \'{\'');
+    if (!open()) return error("@keyframes missing '{'");
     let frame;
     let frames = comments();
     while ((frame = keyframe()) !== null) {
       frames.push(frame);
       frames = frames.concat(comments());
     }
-    if (!close()) return error('@keyframes missing \'}\'');
+    if (!close()) return error("@keyframes missing '}'");
     return pos({
-      type: 'keyframes',
+      type: "keyframes",
       name,
       vendor,
       keyframes: frames,
@@ -617,11 +649,11 @@ function parseCSS(css: any, options: any) {
       return null;
     }
     const supports = trim(m[1]);
-    if (!open()) return error('@supports missing \'{\'');
+    if (!open()) return error("@supports missing '{'");
     const style = comments().concat(rules());
-    if (!close()) return error('@supports missing \'}\'');
+    if (!close()) return error("@supports missing '}'");
     return pos({
-      type: 'supports',
+      type: "supports",
       supports,
       rules: style,
     });
@@ -637,14 +669,14 @@ function parseCSS(css: any, options: any) {
       return null;
     }
     if (!open()) {
-      return error('@host missing \'{\'');
+      return error("@host missing '{'");
     }
     const style = comments().concat(rules());
     if (!close()) {
-      return error('@host missing \'}\'');
+      return error("@host missing '}'");
     }
     return pos({
-      type: 'host',
+      type: "host",
       rules: style,
     });
   }
@@ -660,19 +692,18 @@ function parseCSS(css: any, options: any) {
     }
     const media = trim(m[1]);
     if (!open()) {
-      return error('@media missing \'{\'');
+      return error("@media missing '{'");
     }
     const style = comments().concat(rules());
     if (!close()) {
-      return error('@media missing \'}\'');
+      return error("@media missing '}'");
     }
     return pos({
-      type: 'media',
+      type: "media",
       media,
       rules: style,
     });
   }
-
 
   /**
    * Parse custom-media.
@@ -685,7 +716,7 @@ function parseCSS(css: any, options: any) {
     }
 
     return pos({
-      type: 'custom-media',
+      type: "custom-media",
       name: trim(m[1]),
       media: trim(m[2]),
     });
@@ -702,7 +733,7 @@ function parseCSS(css: any, options: any) {
     }
     const sel = selector() || [];
     if (!open()) {
-      return error('@page missing \'{\'');
+      return error("@page missing '{'");
     }
     let decls = comments();
     // declarations
@@ -712,10 +743,10 @@ function parseCSS(css: any, options: any) {
       decls = decls.concat(comments());
     }
     if (!close()) {
-      return error('@page missing \'}\'');
+      return error("@page missing '}'");
     }
     return pos({
-      type: 'page',
+      type: "page",
       selectors: sel,
       declarations: decls,
     });
@@ -733,14 +764,14 @@ function parseCSS(css: any, options: any) {
     const vendor = trim(m[1]);
     const doc = trim(m[2]);
     if (!open()) {
-      return error('@document missing \'{\'');
+      return error("@document missing '{'");
     }
     const style = comments().concat(rules());
     if (!close()) {
-      return error('@document missing \'}\'');
+      return error("@document missing '}'");
     }
     return pos({
-      type: 'document',
+      type: "document",
       document: doc,
       vendor,
       rules: style,
@@ -757,7 +788,7 @@ function parseCSS(css: any, options: any) {
       return null;
     }
     if (!open()) {
-      return error('@font-face missing \'{\'');
+      return error("@font-face missing '{'");
     }
     let decls = comments();
     // declarations
@@ -767,10 +798,10 @@ function parseCSS(css: any, options: any) {
       decls = decls.concat(comments());
     }
     if (!close()) {
-      return error('@font-face missing \'}\'');
+      return error("@font-face missing '}'");
     }
     return pos({
-      type: 'font-face',
+      type: "font-face",
       declarations: decls,
     });
   }
@@ -778,17 +809,17 @@ function parseCSS(css: any, options: any) {
   /**
    * Parse import
    */
-  const atimport = compileAtRule('import');
+  const atimport = compileAtRule("import");
 
   /**
    * Parse charset
    */
-  const atcharset = compileAtRule('charset');
+  const atcharset = compileAtRule("charset");
 
   /**
    * Parse namespace
    */
-  const atnamespace = compileAtRule('namespace');
+  const atnamespace = compileAtRule("namespace");
 
   /**
    * Parse non-block at-rules
@@ -811,20 +842,22 @@ function parseCSS(css: any, options: any) {
    * Parse at rule.
    */
   function atrule() {
-    if (css[0] !== '@') {
+    if (css[0] !== "@") {
       return null;
     }
-    return atkeyframes()
-      || atmedia()
-      || atcustommedia()
-      || atsupports()
-      || atimport()
-      || atcharset()
-      || atnamespace()
-      || atdocument()
-      || atpage()
-      || athost()
-      || atfontface();
+    return (
+      atkeyframes() ||
+      atmedia() ||
+      atcustommedia() ||
+      atsupports() ||
+      atimport() ||
+      atcharset() ||
+      atnamespace() ||
+      atdocument() ||
+      atpage() ||
+      athost() ||
+      atfontface()
+    );
   }
 
   /**
@@ -833,19 +866,25 @@ function parseCSS(css: any, options: any) {
   function rule() {
     const pos = position();
     const sel = selector();
-    if (!sel) return error('selector missing');
+    if (!sel) return error("selector missing");
     comments();
-    return pos({
-      type: 'rule',
+    const ret = pos({
+      type: "rule",
       selectors: sel,
       declarations: declarations(),
     });
+    info("\nrule: " + JSON.stringify(ret) + "\n css: \n" + css + "\n");
+    return ret;
   }
+
+  //-----------------------------------------------------------
+  info("parseCSS: start 🔴");
   // @ts-expect-error TS(2554): Expected 2 arguments, but got 1.
-  return addParent(stylesheet());
+  const ret = addParent(stylesheet());
+  info("parseCSS: " + JSON.stringify(ret));
+  info("parseCSS: end 🔴");
+  return ret;
 }
 
 export default parseCSS;
-export {
-  PROPERTIES_MAP,
-};
+export { PROPERTIES_MAP };

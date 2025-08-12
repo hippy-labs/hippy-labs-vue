@@ -15,6 +15,24 @@ import { defineComponent, onMounted, ref } from "@vue/runtime-core";
 import HippyLabsComponent from "./components/HippyLabsComponent";
 import { EventBus, Native } from "@hippy/vue-next";
 
+/*.hippy-labs-view-css {*/
+/*  width: 500px;*/
+/*  height: 500px;*/
+/*  background-color: palevioletred;*/
+/*  flex-direction: column;*/
+/*  align-items: center;*/
+/*  justify-content: center;*/
+/*}*/
+
+/*.hippy-labs-child-view-css {*/
+/*  width: 450px;*/
+/*  height: 100px;*/
+/*  background-color: purple;*/
+/*  margin: 10px;*/
+/*  text-align: center;*/
+/*  color: white;*/
+/*}*/
+
 export default defineComponent({
   name: "App",
   components: { HippyLabsComponent },
@@ -77,6 +95,8 @@ export default defineComponent({
 });
 </script>
 <style>
+/*这是css注释*/
+
 #root {
   flex: 1;
   display: flex;
@@ -84,23 +104,5 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   background-color: #40b883;
-}
-
-.hippy-labs-view-css {
-  width: 500px;
-  height: 500px;
-  background-color: palevioletred;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.hippy-labs-child-view-css {
-  width: 450px;
-  height: 100px;
-  background-color: purple;
-  margin: 10px;
-  text-align: center;
-  color: white;
 }
 </style>
