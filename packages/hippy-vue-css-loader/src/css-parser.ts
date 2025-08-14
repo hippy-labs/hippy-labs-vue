@@ -140,8 +140,8 @@ function parseCSS(css: any, options: any) {
   function position() {
     const start = { line: lineno, column };
     return (node: any) => {
-      //👉 TODO
-      node.position = new Position(start);
+      //👉 TODO 暂时注释掉
+      // node.position = new Position(start);
       whitespace();
       return node;
     };
@@ -189,8 +189,8 @@ function parseCSS(css: any, options: any) {
     const ret = {
       type: "stylesheet",
       stylesheet: {
-        //👉 TODO
-        source: options.source,
+        //👉 TODO 暂时注释掉
+        // source: options.source,
         rules: rulesList,
         parsingErrors: errorsList,
       },
