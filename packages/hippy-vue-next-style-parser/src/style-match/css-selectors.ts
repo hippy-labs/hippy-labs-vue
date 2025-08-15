@@ -74,6 +74,9 @@ function getParentNode(node: StyleNode, ssrNodes?: StyleNodeList): StyleNode | n
  * Base classes
  */
 class SelectorCore {
+  //👉 TODO Debug
+  public __name?: string;
+
   // is it a dynamic style
   public dynamic?: boolean;
 
@@ -114,6 +117,11 @@ class SimpleSelector extends SelectorCore {
   public rarity = 0;
 
   public combinator?: string;
+
+  constructor() {
+    super();
+    this.__name = "SimpleSelector";
+  }
 
   public accumulateChanges(node: StyleNode, match: SelectorsMatch) {
     if (!this.dynamic) {
@@ -168,6 +176,7 @@ class SimpleSelectorSequence extends SimpleSelector {
 
   constructor(selectors: SimpleSelector[]) {
     super();
+    this.__name = "SimpleSelectorSequence";
     this.specificity = selectors.reduce((sum, sel) => sel.specificity + sum, 0);
     this.head = selectors.reduce(
       (prev: null | boolean | SimpleSelector, curr: SimpleSelector) => {
@@ -223,6 +232,7 @@ class SimpleSelectorSequence extends SimpleSelector {
 class UniversalSelector extends SimpleSelector {
   constructor() {
     super();
+    this.__name = "UniversalSelector";
     this.specificity = 0x00000000;
     this.rarity = 0;
     this.dynamic = false;
@@ -246,6 +256,7 @@ class IdSelector extends SimpleSelector {
 
   constructor(id: string) {
     super();
+    this.__name = "IdSelector";
     this.specificity = 0x00010000;
     this.rarity = 3;
     this.dynamic = false;
@@ -281,6 +292,7 @@ class TypeSelector extends SimpleSelector {
 
   constructor(cssType: string) {
     super();
+    this.__name = "TypeSelector";
     this.specificity = 0x00000001;
     this.rarity = 1;
     this.dynamic = false;
@@ -315,6 +327,7 @@ class ClassSelector extends SimpleSelector {
 
   constructor(className: string) {
     super();
+    this.__name = "ClassSelector";
     this.specificity = 0x00000100;
     this.rarity = 2;
     this.dynamic = false;
@@ -356,6 +369,7 @@ class PseudoClassSelector extends SimpleSelector {
 
   constructor(cssPseudoClass: string) {
     super();
+    this.__name = "PseudoClassSelector";
     this.specificity = 0x00000100;
     this.rarity = 0;
     this.dynamic = true;
@@ -413,7 +427,7 @@ class AttributeSelector extends SimpleSelector {
   // eslint-disable-next-line complexity
   constructor(attribute: string, test = '', value = '') {
     super();
-
+    this.__name = "AttributeSelector";
     this.specificity = 0x00000100;
     this.rarity = 0;
     this.dynamic = true;
@@ -514,6 +528,7 @@ class InvalidSelector extends SimpleSelector {
 
   constructor(error: Error) {
     super();
+    this.__name = "InvalidSelector";
     this.specificity = 0x00000000;
     this.rarity = 4;
     this.dynamic = false;
@@ -542,6 +557,9 @@ class InvalidSelector extends SimpleSelector {
  * child node group
  */
 class ChildGroup {
+  //👉 TODO Debug
+  public __name?: string;
+
   // list of selector
   public selectors: SelectorCore[];
 
@@ -549,6 +567,7 @@ class ChildGroup {
   public dynamic: boolean;
 
   constructor(selectors) {
+    this.__name = "ChildGroup";
     this.selectors = selectors;
     this.dynamic = selectors.some(sel => sel.dynamic);
   }
@@ -596,6 +615,9 @@ class ChildGroup {
  * Sibling node group
  */
 class SiblingGroup {
+  //👉 TODO Debug
+  public __name?: string;
+
   // list of selector
   public selectors: SelectorCore[];
 
@@ -603,6 +625,7 @@ class SiblingGroup {
   public dynamic: boolean;
 
   constructor(selectors) {
+    this.__name = "SiblingGroup";
     this.selectors = selectors;
     this.dynamic = selectors.some(sel => sel.dynamic);
   }
@@ -658,6 +681,7 @@ class Selector extends SelectorCore {
 
   constructor(selectors: SimpleSelector[]) {
     super();
+    this.__name = "Selector";
     const supportedCombinator = [undefined, ' ', '>', '+', '~'];
     let siblingGroup: SimpleSelector[] = [];
     let lastGroup: SimpleSelector[][] = [];
@@ -793,6 +817,9 @@ type RuleSetSelector = SelectorCore & { ruleSet: RuleSet };
  * Rule Set
  */
 class RuleSet {
+  //👉 TODO Debug
+  public __name?: string;
+
   public selectors: SelectorCore[];
 
   public declarations: CssDeclarationType[];
@@ -804,6 +831,7 @@ class RuleSet {
     declarations: CssDeclarationType[],
     hash: string,
   ) {
+    this.__name = "RuleSet";
     selectors.forEach((sel) => {
       sel.ruleSet = this; // FIXME: It makes circular dependency
       return null;

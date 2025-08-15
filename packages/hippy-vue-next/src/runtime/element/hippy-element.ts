@@ -1057,6 +1057,7 @@ export class HippyElement extends HippyNode {
   }
 
   /**
+   * 👉 TODO 匹配流程
    * get the style attribute of the node according to the global style sheet
    */
   private getNativeStyles(): NativeNodeProps {
@@ -1064,14 +1065,18 @@ export class HippyElement extends HippyNode {
 
     // get the styles from the global CSS stylesheet
     // rem needs to be processed here
+    // 1. 获取可能匹配的规则集合（包含 rem 单位处理）
     const matchedSelectors = getCssMap(undefined, getBeforeLoadStyle()).query(
       this as unknown as StyleNode,
     );
+    // 2. 遍历候选规则
     matchedSelectors.selectors.forEach((matchedSelector) => {
+      // 精确校验选择器链是否匹配当前节点
       // if current element do not match style rule, return
       if (!isStyleMatched(matchedSelector, this)) {
         return;
       }
+      // 3. 合并 RuleSet 的样式声明
       if (matchedSelector.ruleSet?.declarations?.length) {
         matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
           if (cssStyle.property) {
@@ -1082,11 +1087,13 @@ export class HippyElement extends HippyNode {
       }
     });
 
+    // 4. 合并 SSR 注入样式（最高优先级）
     // add ssr inline style
     if (this.ssrInlineStyle) {
       style = { ...style, ...this.ssrInlineStyle };
     }
 
+    // 5. 合并 inline 样式（中优先级）并做 rem 转换
     // finally, get the style from the style attribute of the node and process the rem unit
     style = HippyElement.parseRem({ ...style, ...this.getInlineStyle() });
 

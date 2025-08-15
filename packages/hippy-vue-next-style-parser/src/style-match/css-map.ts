@@ -33,6 +33,7 @@ import type { CssAttribute } from './css-selectors-match';
 import { SelectorsMap } from './css-selectors-match';
 import { parseSelector } from './parser';
 import { HIPPY_GLOBAL_STYLE_NAME, HIPPY_GLOBAL_DISPOSE_STYLE_NAME } from './';
+import {info} from "./log";
 
 // style load hook
 const beforeLoadStyleHook: Function = (declaration: Function): Function => declaration;
@@ -220,12 +221,22 @@ export function getCssMap(
      *  Here is a secret startup option: beforeStyleLoadHook.
      *  Usage for process the styles while styles loading.
      */
+
+    //
+    info('CssAST:', styleCssMap)
+    //
     const cssRules = fromAstNodes(styleCssMap, beforeLoadStyle);
+    //
+    info('CssRules:', cssRules)
+    info('CssRulesJson:', safeStringify(cssRules))
+
     if (globalCssMap) {
       globalCssMap.append(cssRules);
     } else {
       globalCssMap = new SelectorsMap(cssRules);
     }
+    //
+    info('SelectorsMap:', globalCssMap)
 
     // after the global style processing is complete, remove the value of this object
     global[HIPPY_GLOBAL_STYLE_NAME] = undefined;
@@ -244,4 +255,18 @@ export function getCssMap(
   }
 
   return globalCssMap;
+}
+
+
+function safeStringify(obj) {
+  const seen = new WeakSet();
+  return JSON.stringify(obj, (key, value) => {
+    if (typeof value === "object" && value !== null) {
+      if (seen.has(value)) {
+        return "[Circular]"; // 或 null
+      }
+      seen.add(value);
+    }
+    return value;
+  }, 2);
 }
