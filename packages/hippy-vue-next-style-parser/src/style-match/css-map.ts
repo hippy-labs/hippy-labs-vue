@@ -109,7 +109,11 @@ function createSelectorFromAst(ast) {
 
 function createSelector(sel) {
   try {
+    //👉 TODO
     const parsedSelector = parseSelector(sel, 0);
+    info("Selector: ", sel)
+    info("ParsedSelector: ", parsedSelector)
+
     if (!parsedSelector) {
       return new InvalidSelector(new Error('Empty selector'));
     }

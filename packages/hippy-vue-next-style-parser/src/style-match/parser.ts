@@ -25,9 +25,14 @@ export interface SelectorType {
   value?: string;
 }
 
-export type PairValueType = [SelectorType[] | undefined, undefined | string];
+export type PairValueType = [//
+      SelectorType[] | undefined,//
+      undefined | string//
+];//
 
 
+//[PairValueType, PairValueType, PairValueType]
+//[SelectorType[][], SelectorType[][], SelectorType[][]]
 export type ParsedSelectorValueType = (SelectorType[][] | PairValueType)[];
 
 
@@ -44,6 +49,9 @@ export interface SelectorParsedType {
 }
 
 // Check the Regexp is support sticky flag.
+//检测当前 JavaScript 引擎是否支持正则表达式的 sticky 修饰符 (y)。
+//•	g → 会跳过不匹配的位置继续往后找
+//•	y → 必须严格从 lastIndex 开始，否则返回 null
 const REGEXP_SUPPORTING_STICKY_FLAG = (() => {
   try {
     return !!new RegExp('foo', 'y');
@@ -81,7 +89,16 @@ function execRegExp(regexpKey, text, start) {
   // Fallback to split the text if sticky is not supported.
   if (REGEXP_SUPPORTING_STICKY_FLAG) {
     regexp.lastIndex = start;
+    //
     result = regexp.exec(text);
+    // • 作用：在目标字符串中执行一次正则匹配。
+    // • 返回值：
+    //    • 如果匹配成功 → 返回一个数组（RegExpExecArray），包含整个匹配结果和各捕获组。
+    //    • result[0]：完整匹配到的字符串
+    //    • result[1..n]：捕获分组内容
+    //    • result.index：匹配在字符串中的起始位置
+    //    • result.input：原始字符串
+    //    • 如果匹配失败 → 返回 null。
   } else {
     // eslint-disable-next-line no-param-reassign
     text = text.slice(start, text.length);
@@ -227,6 +244,7 @@ function parseSelector(
   text: string,
   start: number | undefined,
 ): SelectorParsedType {
+  //从 0 开始去掉空白
   let end = start;
   const { result, regexp } = execRegExp('whiteSpaceRegEx', text, start);
   if (result) {
@@ -253,14 +271,20 @@ function parseSelector(
       const simpleSelectorSequence = parseSimpleSelectorSequence(newText, end);
       if (!simpleSelectorSequence) {
         if (expectSimpleSelector) {
+          //如果上字符一个是组合器，当前解析器为空，则说明非法字符直接返回
           return;
         }
+        //否则进行下一个循环
         break;
       }
       ({ end } = simpleSelectorSequence);
       if (combinator) {
         pair[1] = combinator.value;
       }
+      //[
+      //  [simpleSelectorSequence.value, combinator.value],
+      //  [simpleSelectorSequence.value, undefined],
+      // ]
       pair = [simpleSelectorSequence.value, undefined];
       value.push(pair);
 
