@@ -96,6 +96,7 @@ function createSelectorFromAst(ast) {
   const simpleSelectorSequences: any[] = [];
 
   for (const currentAst of ast) {
+    //currentAst [ [{type:'#', identifier:'main'}], '>' ],
     const simpleSelectorSequence = createSimpleSelectorSequenceFromAst(currentAst[0]);
     const combinator = currentAst[1];
     if (combinator && simpleSelectorSequence) {
@@ -104,6 +105,8 @@ function createSelectorFromAst(ast) {
     simpleSelectorSequences.push(simpleSelectorSequence);
   }
 
+  //👉 TODO
+  info("SimpleSelectorSequences: ", JSON.stringify(simpleSelectorSequences))
   return new Selector(simpleSelectorSequences);
 }
 

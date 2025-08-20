@@ -31,6 +31,7 @@
 // eslint-disable-next-line max-classes-per-file
 import type { CssDeclarationType, StyleNode, StyleNodeList } from '../index';
 import type { SelectorsMap, SelectorsMatch } from './css-selectors-match';
+import {info} from "./log";
 
 /**
  * determine if the value is null or undefined
@@ -177,7 +178,9 @@ class SimpleSelectorSequence extends SimpleSelector {
   constructor(selectors: SimpleSelector[]) {
     super();
     this.__name = "SimpleSelectorSequence";
+    //this.specificity = 所有子选择器的 specificity 之和
     this.specificity = selectors.reduce((sum, sel) => sel.specificity + sum, 0);
+    //多个选择器里挑出“稀有度最大（rarity 最大）”的那个
     this.head = selectors.reduce(
       (prev: null | boolean | SimpleSelector, curr: SimpleSelector) => {
         return !prev
@@ -187,6 +190,7 @@ class SimpleSelectorSequence extends SimpleSelector {
       },
       null,
     );
+   //this.dynamic = 是否存在动态选择器
     this.dynamic = selectors.some(sel => sel.dynamic);
     this.selectors = selectors;
   }
@@ -715,8 +719,40 @@ class Selector extends SelectorCore {
       siblingGroup.push(sel);
     }
 
+    //-----------------------------------------------------------------------
+    //step:1  groups [
+    //                  [[notice], ],
+    //               ]
+    //        lastGroup = [[notice],]
+    //        siblingGroup = [notice]
+    //-----------------------------------------------------------------------
+    //step:2  groups [
+    //                  [[notice, sequence], ],
+    //               ]
+    //        lastGroup = [[notice, sequence],]
+    //        siblingGroup = [notice, sequence]
+    //-----------------------------------------------------------------------
+    //step:3  groups [
+    //                  [[notice, sequence], [>]],
+    //               ]
+    //        lastGroup = [[notice, sequence],[>]]
+    //        siblingGroup = [>]
+    //-----------------------------------------------------------------------
+    //               [
+    //                  [[notice, sequence], [>]],
+    //               ]
     this.groups = groups.map(g => new ChildGroup(g.map(sg => new SiblingGroup(sg))));
+    //               [
+    //       ChildGroup:[
+    //                    SiblingGroup:[notice, sequence],
+    //                    SiblingGroup:[>]
+    //                  ],
+    //               ]
+    //-----------------------------------------------------------------------
     this.last = selectorList[length];
+
+    //👉 TODO
+    info("Selector: groups: ", JSON.stringify(this.groups))
   }
 
   toString(): string {

@@ -20,7 +20,7 @@ export default defineComponent({
   },
 });
 </script>
-<style scoped>
+<style>
 
 #main > .item.active[role="tab"]:focus + .notice {
   background-color: yellow;
