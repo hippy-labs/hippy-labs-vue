@@ -22,7 +22,15 @@ export default defineComponent({
 </script>
 <style>
 
-#main > .item.active[role="tab"]:focus + .notice {
+/*#main{*/
+/*  width: 1920px;*/
+/*  height: 1080px;*/
+/*  background-color: purple;*/
+/*}*/
+/*#main > .item.active[role="tab"]:focus + .notice {*/
+#main > .item.active + .notice {
   background-color: yellow;
+  /*width: 192px;*/
+  /*height: 108px;*/
 }
 </style>

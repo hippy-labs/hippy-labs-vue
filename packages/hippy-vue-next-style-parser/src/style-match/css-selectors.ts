@@ -640,9 +640,15 @@ class SiblingGroup {
     }
     const pass = this.selectors.every((sel, i) => {
       if (i !== 0) {
-        node = node.nextSibling;
+        //👉 TODO  相邻兄弟组合符，选择当前元素之前紧邻的同级元素
+        //👉 TODO 改成 prevSibling
+        //👉 TODO bug
+        // node = node.nextSibling;
+        node = node.prevSibling;
       }
-      return !!node && (sel as SimpleSelector).match(node);
+      const matched = !!node && (sel as SimpleSelector).match(node);
+      info("[SiblingGroup] match: index:" + i, node, matched)
+      return matched
     });
     return pass ? node : null;
   }
@@ -653,7 +659,9 @@ class SiblingGroup {
     }
     const pass = this.selectors.every((sel, i) => {
       if (i !== 0) {
-        node = node.nextSibling;
+        //👉 TODO bug
+        // node = node.nextSibling;
+        node = node.prevSibling;
       }
       return !!node && (sel as SimpleSelector).mayMatch(node);
     });
@@ -663,7 +671,9 @@ class SiblingGroup {
   trackChanges(node, map) {
     this.selectors.forEach((sel, i) => {
       if (i !== 0) {
-        node = node.nextSibling;
+        //👉 TODO bug
+        // node = node.nextSibling;
+        node = node.prevSibling;
       }
       if (!node) {
         return;
@@ -695,6 +705,7 @@ class Selector extends SelectorCore {
     this.specificity = 0;
     this.dynamic = false;
 
+    //👉 TODO 倒序
     for (let i = length; i >= 0; i--) {
       const sel = selectorList[i];
 
@@ -788,14 +799,17 @@ class Selector extends SelectorCore {
   }
 
   accumulateChanges(node: StyleNode, map: SelectorsMap, ssrNodes?: StyleNodeList): boolean {
+    // 1) 如果选择器不是动态的，直接做完全匹配（开销更小）
     if (!this.dynamic) {
       return this.match(node, ssrNodes);
     }
-
+    // 2) 准备 bounds 数组，用于记录各组匹配时的“左/右界”
     const bounds: {
       left: StyleNode;
       right: StyleNode | null;
     }[] = [];
+
+    // 3) 右向左尝试每个组：计算 mayMatch（只做结构/静态判断，不写依赖）
     const mayMatch = this.groups.every((group, i) => {
       if (i === 0) {
         const nextNode = group.mayMatch(node);
@@ -816,15 +830,17 @@ class Selector extends SelectorCore {
       return false;
     });
 
+    // 4) 如果没可能匹配，直接返回 false
     // Calculating the right bounds for each selector won't save much
     if (!mayMatch) {
       return false;
     }
-
+    // 5) 如果没有 map（只做过滤），直接返回 mayMatch（true）
     if (!map) {
       return mayMatch;
     }
 
+    // 6) 有 map 的话，我们需要对每个 *动态* 的 group 收集依赖（trackChanges）
     for (let i = 0; i < this.groups.length; i += 1) {
       const group = this.groups[i];
       if (!group.dynamic) {
@@ -832,8 +848,10 @@ class Selector extends SelectorCore {
       }
       const bound = bounds[i];
       let node = bound.left;
+      // 7) 从 left 向上遍历直到 right（如果 right 为 null，则遍历到最上层）
       do {
         if (group.mayMatch(node)) {
+          // 对每一个可能影响匹配的 node，记录其需要监听的属性/伪类
           group.trackChanges(node, map);
         }
       } while (
@@ -841,7 +859,7 @@ class Selector extends SelectorCore {
         && (node = node.parentNode as StyleNode)
       );
     }
-
+    // 8) 返回 mayMatch（true）
     return mayMatch;
   }
 }
