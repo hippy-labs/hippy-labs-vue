@@ -24,6 +24,7 @@
 // eslint-disable-next-line max-classes-per-file
 import type { StyleNode, CommonMapParams, StyleNodeList } from '../index';
 import type { RuleSet, SelectorCore } from './css-selectors';
+import {info} from "./log";
 
 export type CssAttribute = CommonMapParams;
 
@@ -130,6 +131,7 @@ class SelectorsMap {
     this.universal = [];
     this.position = 0;
     this.ruleSets = ruleSets;
+    //TODO 👉
     ruleSets.forEach(rule => rule.lookupSort(this));
   }
 
@@ -180,18 +182,26 @@ class SelectorsMap {
       domClassList = new Set((attributes?.class || '').split(' ').filter(x => x.trim()));
       domId = attributes.id;
     }
+    //------------------------------------------------------------------------
     const selectorClasses = [this.universal, this.id[domId], this.type[tagName]];
+    //
     if (domClassList?.size) {
       domClassList.forEach(c => selectorClasses.push(this.class[c]));
     }
+    //`universal` (所有 `*`) + `id[domId]` + `type[tagName]` + 所有 `class[c]` 对应数组
     const selectors = selectorClasses
       .filter(arr => !!arr)
       .reduce((cur, next) => cur.concat(next), []);
 
+    //------------------------------------------------------------------------
     const selectorsMatch = new SelectorsMatch();
+
+    //
+    info("[SelectorsMatch]:selectors:", selectors)
 
     selectorsMatch.selectors = selectors
       .filter(sel => sel.sel.accumulateChanges(node, selectorsMatch, ssrNodes))
+      //如果相等（差值为 0，为假值），就使用 a.pos - b.pos 决定顺序
       .sort((a, b) => a.sel.specificity - b.sel.specificity || a.pos - b.pos)
       .map(docSel => docSel.sel);
 

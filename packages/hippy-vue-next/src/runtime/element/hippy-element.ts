@@ -1073,7 +1073,9 @@ export class HippyElement extends HippyNode {
     matchedSelectors.selectors.forEach((matchedSelector) => {
       // 精确校验选择器链是否匹配当前节点
       // if current element do not match style rule, return
-      if (!isStyleMatched(matchedSelector, this)) {
+      const matched = isStyleMatched(matchedSelector, this)
+      warn("[Element]: getCssMap --> query: ", this, matched)
+      if (!matched) {
         return;
       }
       // 3. 合并 RuleSet 的样式声明
