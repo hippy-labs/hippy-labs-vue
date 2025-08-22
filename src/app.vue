@@ -1,10 +1,6 @@
 <template>
-  <div id="main">
-    <div class="item active" role="tab" tabindex="0">
-      这是主标签
-    </div>
-    <div class="notice">
-      相邻提示
+  <div id="root">
+    <div class="child">
     </div>
   </div>
 </template>
@@ -22,15 +18,17 @@ export default defineComponent({
 </script>
 <style>
 
-/*#main{*/
-/*  width: 1920px;*/
-/*  height: 1080px;*/
-/*  background-color: purple;*/
-/*}*/
-/*#main > .item.active[role="tab"]:focus + .notice {*/
-#main > .item.active + .notice {
-  background-color: yellow;
-  /*width: 192px;*/
-  /*height: 108px;*/
+#root {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #40b883;
 }
+
+.child {
+  width: 960px;
+  height: 480px;
+  background-color: yellow;
+}
+
 </style>

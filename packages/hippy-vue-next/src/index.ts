@@ -142,6 +142,7 @@ export interface HippyAppOptions {
   ssrNodeList?: SsrNode[];
 }
 
+//👉 TODO
 // base screen width
 const defaultRatioBaseWidth = 750;
 

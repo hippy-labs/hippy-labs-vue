@@ -15,6 +15,8 @@ global.Hippy.on("unhandledRejection", (reason) => {
 const app: HippyApp = createApp(App, {
   appName: "Demo",
   styleOptions: {
+    //👉 TODO
+    ratioBaseWidth: 1920,
     beforeLoadStyle: (decl) => {
       let { value } = decl;
       // 比如可以对 rem 单位进行处理

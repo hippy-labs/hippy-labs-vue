@@ -63,6 +63,7 @@ import { Native } from "../native";
 import { HippyNode, NodeType } from "../node/hippy-node";
 import { HippyText } from "../text/hippy-text";
 import { info } from "../../util/log";
+import {normalizeStyleValues} from "../style/style-normalizer";
 
 interface OffsetMapType {
   textShadowOffsetX: string;
@@ -199,25 +200,6 @@ function createEventListener(nativeName, originalName) {
  * @public
  */
 export class HippyElement extends HippyNode {
-  /**
-   * process the rem in the style unit and return the actual size value
-   *
-   * @param styleObject - style
-   */
-  static parseRem(styleObject: NativeNodeProps): NativeNodeProps {
-    let style: NativeNodeProps = {};
-    const keys = Object.keys(styleObject);
-
-    if (keys.length) {
-      keys.forEach((key) => {
-        style[key] = parseRemStyle(styleObject[key]);
-      });
-    } else {
-      style = styleObject;
-    }
-
-    return style;
-  }
 
   // element tag name, such as div, ul, hi-swiper, etc.
   public tagName: string;
@@ -1097,7 +1079,7 @@ export class HippyElement extends HippyNode {
 
     // 5. 合并 inline 样式（中优先级）并做 rem 转换
     // finally, get the style from the style attribute of the node and process the rem unit
-    style = HippyElement.parseRem({ ...style, ...this.getInlineStyle() });
+    style = normalizeStyleValues(this, {...style, ...this.getInlineStyle()});
 
     info("tag: " + this.tagName + " style: ", style, " ✅ ");
 
