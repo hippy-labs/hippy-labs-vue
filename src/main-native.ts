@@ -58,4 +58,13 @@ const initCallback = ({ superProps, rootViewId }) => {
   });
   app.mount("#root");
 };
+
+//---------------------------------------------------------------------
+//全局变量， 不能写到 app.vue 的 onMounted 函数里面，原因：
+global.__HIPPY_CSS_VARIABLES__['--color-primary'] = '#ff4400'//#ff4400
+global.__HIPPY_CSS_VARIABLES__['--space-md'] = '16px'
+
+console.log('__HIPPY_CSS_VARIABLES__', global.__HIPPY_CSS_VARIABLES__)
+//---------------------------------------------------------------------
+
 app.$start().then(initCallback);

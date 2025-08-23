@@ -60,6 +60,13 @@ export interface StyleNodeList {
 export const HIPPY_GLOBAL_STYLE_NAME = '__HIPPY_VUE_STYLES__';
 
 /**
+ * Global css variables identifier name
+ *
+ * @public
+ */
+export const HIPPY_GLOBAL_CSS_VARIABLES_NAME = '__HIPPY_CSS_VARIABLES__';
+
+/**
  * need delete style list, when we used hmr, expired style will be push to globally dispose array
  *
  * @public

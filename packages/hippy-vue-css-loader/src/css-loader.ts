@@ -34,6 +34,7 @@ let sourceId = 0;
  */
 const GLOBAL_STYLE_NAME = "__HIPPY_VUE_STYLES__";
 const GLOBAL_DISPOSE_STYLE_NAME = "__HIPPY_VUE_DISPOSE_STYLES__";
+const GLOBAL_CSS_VARIABLES_NAME = '__HIPPY_CSS_VARIABLES__';
 
 /**
  * Convert the CSS text to AST that able to parse by selector parser.
@@ -57,6 +58,7 @@ function hippyVueCSSLoader(this: any, source: any) {
 
       declarations: n.declarations.map((dec: any) => {
         let { value } = dec;
+        const isVariable = dec.property?.startsWith("--");
         const isVariableColor =
           dec.property?.startsWith("-") &&
           typeof value === "string" &&
@@ -66,8 +68,8 @@ function hippyVueCSSLoader(this: any, source: any) {
             value.includes("hue") ||
             value.trim() in colorNames);
         if (
-          dec.property &&
-          (dec.property.toLowerCase().indexOf("color") > -1 || isVariableColor)
+            !isVariable && dec.property &&
+            (dec.property.toLowerCase().indexOf("color") > -1 || isVariableColor)
         ) {
           value = translateColor(value);
         }
@@ -85,6 +87,11 @@ function hippyVueCSSLoader(this: any, source: any) {
     if (!global['${GLOBAL_STYLE_NAME}']) {
       global['${GLOBAL_STYLE_NAME}'] = [];
     }
+    
+    if (!global['${GLOBAL_CSS_VARIABLES_NAME}']) {
+      global['${GLOBAL_CSS_VARIABLES_NAME}'] = {};
+    }
+    
     global['${GLOBAL_STYLE_NAME}'] = global['${GLOBAL_STYLE_NAME}'].concat(${JSON.stringify(rulesAst)});
 
     if(module.hot) {

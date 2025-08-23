@@ -64,6 +64,9 @@ import { HippyNode, NodeType } from "../node/hippy-node";
 import { HippyText } from "../text/hippy-text";
 import { info } from "../../util/log";
 import {normalizeStyleValues} from "../style/style-normalizer";
+import {resolveCssStyle} from "../style/style-css-resolver";
+import {extractCssVariables} from "../style/style-css-variables-resolver ";
+import {normalizeColorStyleValues} from "../style/style-color-normalizer";
 
 interface OffsetMapType {
   textShadowOffsetX: string;
@@ -218,6 +221,9 @@ export class HippyElement extends HippyNode {
 
   // processed style, to refactor on dom
   public processedStyle: NativeNodeProps = {};
+
+  //cssVariables
+  public cssVariables: NativeNodeProps = {};
 
   // events map
   public events: NativeNodeProps;
@@ -1060,24 +1066,32 @@ export class HippyElement extends HippyNode {
       if (!matched) {
         return;
       }
-      // 3. 合并 RuleSet 的样式声明
+      warn("[Element]: getCssMap --> matched: declarations:", this, matchedSelector.ruleSet?.declarations)
+      // 3. 先提取变量
+      extractCssVariables(this, matchedSelector.ruleSet?.declarations);
+
+      // 4. 遍历规则声明，逐条解析变量和函数
       if (matchedSelector.ruleSet?.declarations?.length) {
-        matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
-          if (cssStyle.property) {
-            // comment style doesn't have property and value
-            style[cssStyle.property] = cssStyle.value;
-          }
-        });
+        //
+        const nodeProps = resolveCssStyle(this, matchedSelector.ruleSet?.declarations);
+        if (nodeProps) {
+          Object.keys(nodeProps).forEach((prop) => {
+            const resolvedValue = nodeProps[prop];
+            if (resolvedValue != null) {
+              style[prop] = resolvedValue;
+            }
+          });
+        }
       }
     });
 
-    // 4. 合并 SSR 注入样式（最高优先级）
+    // 5. 合并 SSR 注入样式（最高优先级）
     // add ssr inline style
     if (this.ssrInlineStyle) {
       style = { ...style, ...this.ssrInlineStyle };
     }
 
-    // 5. 合并 inline 样式（中优先级）并做 rem 转换
+    // 6. 合并 inline 样式（中优先级）并做 rem 转换
     // finally, get the style from the style attribute of the node and process the rem unit
     style = normalizeStyleValues(this, {...style, ...this.getInlineStyle()});
 

@@ -464,14 +464,26 @@ function parseCSS(css: any, options: any) {
     }
     // val
     const propertyName = prop.replace(commentRegexp, "");
-    const camelizedProperty = camelize(propertyName);
-    let property = (() => {
-      const property = PROPERTIES_MAP[camelizedProperty];
-      if (property) {
-        return property;
-      }
-      return camelizedProperty;
-    })();
+    // 👉 TODO 判断是否是 CSS 变量
+    let property: string;
+    if (propertyName.startsWith('--')) {
+      // CSS 变量保留原名
+      property = propertyName;
+    } else {
+      // 普通属性才进行 camelize
+      const camelizedProperty = camelize(propertyName);
+      property = PROPERTIES_MAP[camelizedProperty] || camelizedProperty;
+    }
+    //-------------------------------------------------------------------------
+    // const camelizedProperty = camelize(propertyName);
+    // let property = (() => {
+    //   const property = PROPERTIES_MAP[camelizedProperty];
+    //   if (property) {
+    //     return property;
+    //   }
+    //   return camelizedProperty;
+    // })();
+    //-------------------------------------------------------------------------
     const val = match(/^((?:'(?:\\'|.)*?'|"(?:\\"|.)*?"|\([^)]*?\)|[^};])+)/);
     let value = val ? trim(val[0]).replace(commentRegexp, "") : "";
     switch (property) {
