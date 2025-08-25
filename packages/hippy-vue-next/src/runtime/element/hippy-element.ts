@@ -65,8 +65,6 @@ import { HippyText } from "../text/hippy-text";
 import { info } from "../../util/log";
 import {normalizeStyleValues} from "../style/style-normalizer";
 import {resolveCssStyle} from "../style/style-css-resolver";
-import {extractCssVariables} from "../style/style-css-variables-resolver ";
-import {normalizeColorStyleValues} from "../style/style-color-normalizer";
 
 interface OffsetMapType {
   textShadowOffsetX: string;
@@ -1067,10 +1065,8 @@ export class HippyElement extends HippyNode {
         return;
       }
       warn("[Element]: getCssMap --> matched: declarations:", this, matchedSelector.ruleSet?.declarations)
-      // 3. 先提取变量
-      extractCssVariables(this, matchedSelector.ruleSet?.declarations);
 
-      // 4. 遍历规则声明，逐条解析变量和函数
+      // 3. 遍历规则声明，逐条解析变量和函数
       if (matchedSelector.ruleSet?.declarations?.length) {
         //
         const nodeProps = resolveCssStyle(this, matchedSelector.ruleSet?.declarations);
@@ -1085,13 +1081,13 @@ export class HippyElement extends HippyNode {
       }
     });
 
-    // 5. 合并 SSR 注入样式（最高优先级）
+    // 4. 合并 SSR 注入样式（最高优先级）
     // add ssr inline style
     if (this.ssrInlineStyle) {
       style = { ...style, ...this.ssrInlineStyle };
     }
 
-    // 6. 合并 inline 样式（中优先级）并做 rem 转换
+    // 5. 合并 inline 样式（中优先级）并做 rem 转换
     // finally, get the style from the style attribute of the node and process the rem unit
     style = normalizeStyleValues(this, {...style, ...this.getInlineStyle()});
 

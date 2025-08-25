@@ -571,6 +571,7 @@ declare namespace HippyTypes {
     __HIPPYNATIVEGLOBAL__: __HIPPYNATIVEGLOBAL__;
     __PLATFORM__: __PLATFORM__;
     __HIPPYCURDIR__?: string;
+    __HIPPY_CSS_VARIABLES__: {}
     Hippy: HippyTypes.HippyConstance;
     WebSocket: WebSocket | any;
     ConsoleModule: ConsoleModule;

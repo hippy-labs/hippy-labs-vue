@@ -24,6 +24,11 @@
         <p>子元素再次覆盖变量</p>
       </div>
     </div>
+
+    <!-- 嵌套变量示例 -->
+    <div class="card card-nested">
+      <p>嵌套变量引用 → --card-bg = var(--color-primary)</p>
+    </div>
   </div>
 </template>
 
@@ -110,5 +115,11 @@ export default defineComponent({
 .card-scope-child-local {
   --color-primary: purple;
   background-color: var(--color-primary);
+}
+
+/* 嵌套变量示例 */
+.card-nested {
+  --card-bg: var(--color-primary, gray);
+  background-color: var(--card-bg);
 }
 </style>
