@@ -2,6 +2,7 @@
 import {HippyElement} from "../element/hippy-element";
 import {CssDeclarationType} from "@hippy/hippy-vue-next-style-parser";
 import {NativeNodeProps} from "../../types";
+import {cssVarManager} from "./style-css-variables-manager";
 
 const MAX_VAR_DEPTH = 16;
 
@@ -9,18 +10,23 @@ const MAX_VAR_DEPTH = 16;
 function lookupVar(node: HippyElement, varName: string) {
     // 本节点
     if (node.cssVariables && varName in node.cssVariables) {
+        //
+        cssVarManager.addDependency(node, varName, node);
         return node.cssVariables[varName]
     }
     // 祖先链
     let p = node.parentNode as HippyElement | null;
     while (p) {
         if (p.cssVariables && varName in p.cssVariables) {
+            //
+            cssVarManager.addDependency(node, varName, p);
             return p.cssVariables[varName]
         }
         p = p.parentNode as HippyElement | null;
     }
     // 全局
     if (global.__HIPPY_CSS_VARIABLES__ && varName in global.__HIPPY_CSS_VARIABLES__) {
+        cssVarManager.addDependency(node, varName, 'global');
         return global.__HIPPY_CSS_VARIABLES__[varName];
     }
     return undefined;

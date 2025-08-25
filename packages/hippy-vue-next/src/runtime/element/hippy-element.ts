@@ -65,6 +65,7 @@ import { HippyText } from "../text/hippy-text";
 import { info } from "../../util/log";
 import {normalizeStyleValues} from "../style/style-normalizer";
 import {resolveCssStyle} from "../style/style-css-resolver";
+import {cssVarManager} from "../style/style-css-variables-manager";
 
 interface OffsetMapType {
   textShadowOffsetX: string;
@@ -380,6 +381,11 @@ export class HippyElement extends HippyNode {
     if (child instanceof HippyText) {
       this.setText("", { notToNative: true });
     }
+    //
+    try {
+      cssVarManager.removeNode(child as HippyElement)
+    }catch (e){}
+    //
     super.removeChild(child);
   }
 

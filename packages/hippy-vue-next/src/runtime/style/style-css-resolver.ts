@@ -1,6 +1,6 @@
 //
 import {HippyElement} from "../element/hippy-element";
-import {resolveCssVariables} from "./style-css-variables-resolver ";
+import {resolveCssVariables} from "./style-css-variables-resolver";
 import {CssDeclarationType} from "@hippy/hippy-vue-next-style-parser";
 import {NativeNodeProps} from "../../types";
 import {normalizeColorStyleValues} from "./style-color-normalizer";

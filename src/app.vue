@@ -34,6 +34,7 @@
 
 <script lang="ts">
 import {defineComponent, ref, onMounted} from "vue";
+import {cssVarManager} from "@hippy/vue-next";
 
 export default defineComponent({
   name: "App",
@@ -44,9 +45,11 @@ export default defineComponent({
     const toggleColor = () => {
       isRed.value = !isRed.value
       const color = isRed.value ? '#ff0000' : '#00ff00' // 大红 ↔ 鲜绿色
-      console.log('toggleColor ->', color)
-      // TODO 待实现
-      global.__HIPPY_CSS_VARIABLES__['--color-primary'] = color
+      const margin = isRed.value ? '5px' : '16px'
+      //
+      // cssVarManager.setGlobalVar('--space-md', margin)
+      cssVarManager.setGlobalVar('--color-primary', color)
+      // global.__HIPPY_CSS_VARIABLES__['--color-primary'] = color
     }
 
     return {

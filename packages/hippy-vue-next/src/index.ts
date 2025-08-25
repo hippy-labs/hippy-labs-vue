@@ -83,6 +83,8 @@ import {
 import { type ScreenSize, setScreenSize } from "./util/screen";
 import { convertToHippyElementTree } from "./hydration";
 
+import {cssVarManager} from "./runtime/style/style-css-variables-manager"
+
 /**
  * Hippy App type, override the mount method of Vue
  *
@@ -410,4 +412,5 @@ export {
   getTagComponent,
   registerElement,
   isNativeTag,
+  cssVarManager,
 };
