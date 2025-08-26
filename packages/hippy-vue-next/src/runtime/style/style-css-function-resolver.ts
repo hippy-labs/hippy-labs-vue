@@ -80,10 +80,9 @@ function dispatchFunction(name: string, rawArgs: string): string {
 // ----------------- 核心函数解析 -----------------
 function resolveCalc(expr: string): string {
     try {
-        // 1) 把 px token 转为数值 token
-        const safe1 = expr.replace(/([+\-]?\d*\.?\d+)px/g, "($1)");
-        // 2) 过滤掉非法字符（只保留数字、+-*/(). 和空格）
-        const safe = safe1.replace(/[^0-9+\-*/().\s]/g, "");
+        const safeExpr = expr.replace(/([+\-]?\d*\.?\d+)px/g, "($1)");
+        const resolvedExpr = resolveValue(safeExpr); // 递归解析嵌套
+        const safe = resolvedExpr.replace(/[^0-9+\-*/().\s]/g, "");
         // eslint-disable-next-line no-new-func
         const val = Function(`return ${safe}`)();
         return Number.isFinite(val) ? `${trimFloat(val)}px` : `calc(${expr})`;
@@ -115,7 +114,8 @@ function resolveMinMax(args: string, fn: (...nums: number[]) => number): string 
     const parts = splitArgs(args);
     const nums: number[] = [];
     for (const p of parts) {
-        const m = p.trim().match(/^([+\-]?\d*\.?\d+)px?$/);
+        const resolved = resolveValue(p); // 递归解析嵌套
+        const m = resolved.trim().match(/^([+\-]?\d*\.?\d+)px?$/);
         if (!m) return `${fn === Math.min ? "min" : "max"}(${args})`;
         nums.push(parseFloat(m[1]));
     }
@@ -127,7 +127,8 @@ function resolveClamp(args: string): string {
     if (parts.length !== 3) return `clamp(${args})`;
     const nums: number[] = [];
     for (const p of parts) {
-        const m = p.trim().match(/^([+\-]?\d*\.?\d+)px?$/);
+        const resolved = resolveValue(p); // 递归解析嵌套
+        const m = resolved.trim().match(/^([+\-]?\d*\.?\d+)px?$/);
         if (!m) return `clamp(${args})`;
         nums.push(parseFloat(m[1]));
     }

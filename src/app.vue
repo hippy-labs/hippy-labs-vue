@@ -20,6 +20,11 @@
       <p>clamp(8px, var(--space-md), 500px)</p>
     </div>
 
+    <!-- 嵌套示例 -->
+    <div class="card card-nested">
+      <p>calc(10px + min(var(--space-md), 390px))</p>
+    </div>
+
     <!-- 点击切换全局尺寸变量 -->
     <div class="card card-controller" @click="toggleMargin">
       <p>点击切换全局尺寸变量</p>
@@ -95,6 +100,12 @@ export default defineComponent({
 .card-clamp {
   width: clamp(8px, var(--space-md), 500px);
   background-color: palevioletred;
+}
+
+/* 嵌套示例 */
+.card-nested {
+  width: calc(10px + min(var(--space-md), 390px));
+  background-color: deepskyblue;
 }
 
 /* 控制按钮 */
