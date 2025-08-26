@@ -1055,6 +1055,7 @@ export class HippyElement extends HippyNode {
   private getNativeStyles(): NativeNodeProps {
     let style: NativeNodeProps = {};
 
+    warn(`🚀 [Element] -> getNativeStyles() started`, this);
     // get the styles from the global CSS stylesheet
     // rem needs to be processed here
     // 1. 获取可能匹配的规则集合（包含 rem 单位处理）

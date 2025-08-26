@@ -1,63 +1,51 @@
 <template>
   <div id="root">
-    <!-- 使用全局变量 -->
-    <div class="card card-global">
-      <p>全局变量元素</p>
+    <!-- 使用 calc -->
+    <div class="card card-calc">
+      <p>calc(var(--space-md) * 2)</p>
     </div>
 
-    <!-- 局部覆盖变量 -->
-    <div class="card card-local">
-      <p>局部覆盖变量元素</p>
+    <!-- 使用 min -->
+    <div class="card card-min">
+      <p>min(var(--space-md), 300px)</p>
     </div>
 
-    <!-- 点击切换全局变量 -->
-    <div class="card card-controller" @click="toggleColor">
-      <p>点击我切换全局主色</p>
+    <!-- 使用 max -->
+    <div class="card card-max">
+      <p>max(var(--space-md), 12px)</p>
     </div>
 
-    <!-- 父容器作用域覆盖 -->
-    <div class="scope-container">
-      <div class="card card-scope-child">
-        <p>父容器覆盖变量 → 子元素继承</p>
-      </div>
-      <div class="card card-scope-child-local">
-        <p>子元素再次覆盖变量</p>
-      </div>
+    <!-- 使用 clamp -->
+    <div class="card card-clamp">
+      <p>clamp(8px, var(--space-md), 500px)</p>
     </div>
 
-    <!-- 嵌套变量示例 -->
-    <div class="card card-nested">
-      <p>嵌套变量引用 → --card-bg = var(--color-primary)</p>
+    <!-- 点击切换全局尺寸变量 -->
+    <div class="card card-controller" @click="toggleMargin">
+      <p>点击切换全局尺寸变量</p>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import {defineComponent, ref, onMounted} from "vue";
+import {defineComponent, ref} from "vue";
 import {cssVarManager} from "@hippy/vue-next";
 
 export default defineComponent({
   name: "App",
   setup() {
-    const isRed = ref(true)
+    const isSmall = ref(true);
 
-    // 点击时切换全局 CSS 变量
-    const toggleColor = () => {
-      isRed.value = !isRed.value
-      const color = isRed.value ? '#ff0000' : '#00ff00' // 大红 ↔ 鲜绿色
-      const margin = isRed.value ? '5px' : '16px'
-      //
-      // cssVarManager.setGlobalVar('--space-md', margin)
-      cssVarManager.setGlobalVar('--color-primary', color)
-      // global.__HIPPY_CSS_VARIABLES__['--color-primary'] = color
-    }
+    // 点击切换全局尺寸变量
+    const toggleMargin = () => {
+      isSmall.value = !isSmall.value;
+      const margin = isSmall.value ? '400px' : '600px';
+      cssVarManager.setGlobalVar('--space-md', margin);
+    };
 
-    return {
-      isRed,
-      toggleColor
-    }
+    return {toggleMargin, isSmall};
   }
-})
+});
 </script>
 
 <style>
@@ -74,55 +62,43 @@ export default defineComponent({
 .card {
   width: 400px;
   height: 100px;
-  margin: var(--space-md);
+  margin: 20px;
   justify-content: center;
   align-items: center;
-  background-color: gray; /* fallback */
+  background-color: gray;
   border-radius: 12px;
   color: #fff;
   font-weight: bold;
   display: flex;
+  text-align: center;
 }
 
-/* 使用全局变量 */
-.card-global {
-  background-color: var(--color-primary);
+/* calc 示例 */
+.card-calc {
+  width: calc(var(--space-md) * 2);
+  background-color: teal;
 }
 
-/* 局部覆盖变量 */
-.card-local {
-  --color-primary: #ffcc00;
-  background-color: var(--color-primary);
-  color: #000;
+/* min 示例 */
+.card-min {
+  width: min(var(--space-md), 300px);
+  background-color: orange;
 }
 
-/* 控制器 */
-.card-controller {
+/* max 示例 */
+.card-max {
+  width: max(var(--space-md), 12px);
+  background-color: purple;
+}
+
+/* clamp 示例 */
+.card-clamp {
+  width: clamp(8px, var(--space-md), 500px);
   background-color: palevioletred;
 }
 
-/* 父作用域覆盖变量 */
-.scope-container {
-  --color-primary: #0066ff;
-  display: flex;
-  width: 400px;
-  height: 300px;
-}
-
-/* 子元素继承父作用域 */
-.card-scope-child {
-  background-color: var(--color-primary);
-}
-
-/* 子元素再次覆盖 */
-.card-scope-child-local {
-  --color-primary: purple;
-  background-color: var(--color-primary);
-}
-
-/* 嵌套变量示例 */
-.card-nested {
-  --card-bg: var(--color-primary, gray);
-  background-color: var(--card-bg);
+/* 控制按钮 */
+.card-controller {
+  background-color: #ff0000;
 }
 </style>
