@@ -659,7 +659,7 @@ class SiblingGroup {
         node = node.prevSibling;
       }
       const matched = !!node && (sel as SimpleSelector).match(node);
-      info("[SiblingGroup] match: index:" + i, node, matched)
+      // info("[SiblingGroup] match: index:" + i, node, matched)
       return matched
     });
     return pass ? node : null;

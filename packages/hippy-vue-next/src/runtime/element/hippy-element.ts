@@ -1117,7 +1117,7 @@ export class HippyElement extends HippyNode {
   private getNativeStyles(): NativeNodeProps {
     let style: NativeNodeProps = {};
 
-    warn(`🚀 [Element] -> getNativeStyles() started`, this);
+    // warn(`🚀 [Element] -> getNativeStyles() started`, this);
     // get the styles from the global CSS stylesheet
     // rem needs to be processed here
     // 1. 获取可能匹配的规则集合（包含 rem 单位处理）
@@ -1129,11 +1129,11 @@ export class HippyElement extends HippyNode {
       // 精确校验选择器链是否匹配当前节点
       // if current element do not match style rule, return
       const matched = isStyleMatched(matchedSelector, this)
-      warn("[Element]: getCssMap --> query: ", this, matched)
+      // warn("[Element]: getCssMap --> query: ", this, matched)
       if (!matched) {
         return;
       }
-      warn("[Element]: getCssMap --> matched: declarations:", this, matchedSelector)
+      warn("[Element]: getCssMap --> MatchedSelector:", this, matchedSelector)
 
       // 3. 遍历规则声明，逐条解析变量和函数
       if (matchedSelector.ruleSet?.declarations?.length) {
