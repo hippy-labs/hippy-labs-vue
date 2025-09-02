@@ -1,76 +1,85 @@
 <template>
-  <div id="root">
-    <!-- 使用 calc -->
-    <div class="card card-calc">
-      <p>calc(var(--space-md) * 2)</p>
+  <div id="main">
+    <div class="item active" role="tab" tabindex="0"
+         v-pseudo:focus="focusValue"
+         v-pseudo:active="activeValue">
+      这是主标签
+    </div>
+    <div class="notice">
+      <p class="card-text">直接子提示</p>
+      <div class="inner-notice">
+        <p class="card-text">嵌套子提示</p>
+        <div class="deep">
+          <p class="card-text">更深层提示</p>
+        </div>
+      </div>
     </div>
 
-    <!-- 使用 min -->
-    <div class="card card-min">
-      <p>min(var(--space-md), 300px)</p>
-    </div>
+    <p class="card-text"> 同级提示 </p>
 
-    <!-- 使用 max -->
-    <div class="card card-max">
-      <p>max(var(--space-md), 12px)</p>
+    <div class="card" @click="toggleFocus">
+      <p>点击切换伪类 focus 状态</p>
     </div>
-
-    <!-- 使用 clamp -->
-    <div class="card card-clamp">
-      <p>clamp(8px, var(--space-md), 500px)</p>
-    </div>
-
-    <!-- 嵌套示例 -->
-    <div class="card card-nested">
-      <p>calc(10px + min(var(--space-md), 390px))</p>
-    </div>
-
-    <!-- 点击切换全局尺寸变量 -->
-    <div class="card card-controller" @click="toggleMargin">
-      <p>点击切换全局尺寸变量</p>
+    <div class="card" @click="toggleActive">
+      <p>点击切换伪类 active 状态</p>
     </div>
   </div>
 </template>
-
 <script lang="ts">
-import {defineComponent, ref} from "vue";
-import {cssVarManager} from "@hippy/vue-next";
+import {defineComponent} from "@vue/runtime-core";
+import HippyLabsComponent from "./components/HippyLabsComponent";
+import {ref} from "vue";
 
 export default defineComponent({
   name: "App",
+  components: {HippyLabsComponent},
   setup() {
-    const isSmall = ref(true);
+    const focusValue = ref<boolean>(false);
+    const activeValue = ref<boolean>(false);
 
-    // 点击切换全局尺寸变量
-    const toggleMargin = () => {
-      isSmall.value = !isSmall.value;
-      const margin = isSmall.value ? '400px' : '600px';
-      cssVarManager.setGlobalVar('--space-md', margin);
+    function toggleFocus() {
+      focusValue.value = !focusValue.value;
+    }
+
+    function toggleActive() {
+      activeValue.value = !activeValue.value;
+    }
+
+    return {
+      toggleFocus,
+      toggleActive,
+      focusValue,
+      activeValue,
     };
-
-    return {toggleMargin, isSmall};
-  }
+  },
 });
 </script>
-
 <style>
-#root {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+
+#main {
+  width: 1920px;
+  height: 1080px;
+  background-color: green;
   justify-content: center;
   align-items: center;
-  background-color: #40b883;
 }
 
-/* 基础卡片样式 */
+.notice {
+  width: 960px;
+  height: 480px;
+  background-color: palevioletred;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .card {
   width: 400px;
   height: 100px;
   margin: 20px;
   justify-content: center;
   align-items: center;
-  background-color: gray;
+  background-color: red;
   border-radius: 12px;
   color: #fff;
   font-weight: bold;
@@ -78,38 +87,24 @@ export default defineComponent({
   text-align: center;
 }
 
-/* calc 示例 */
-.card-calc {
-  width: calc(var(--space-md) * 2);
-  background-color: teal;
+.card-text {
+  color: deepskyblue;
 }
 
-/* min 示例 */
-.card-min {
-  width: min(var(--space-md), 300px);
+#main > .item.active[role="tab"]:focus + .notice {
+  background-color: yellow;
+}
+
+#main > .item.active[role="tab"]:focus + .notice > .card-text {
+  color: black;
+}
+
+/* 影响所有 notice 内 p，包括嵌套子孙 */
+#main > .item.active[role="tab"]:active + .notice p {
   background-color: orange;
+  color: white;
 }
 
-/* max 示例 */
-.card-max {
-  width: max(var(--space-md), 12px);
-  background-color: purple;
-}
-
-/* clamp 示例 */
-.card-clamp {
-  width: clamp(8px, var(--space-md), 500px);
-  background-color: palevioletred;
-}
-
-/* 嵌套示例 */
-.card-nested {
-  width: calc(10px + min(var(--space-md), 390px));
-  background-color: deepskyblue;
-}
-
-/* 控制按钮 */
-.card-controller {
-  background-color: #ff0000;
-}
 </style>
+
+

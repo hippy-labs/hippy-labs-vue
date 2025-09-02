@@ -109,6 +109,37 @@ class SelectorsMap {
     }
   }
 
+  //-------------------------------------------------------------------------------
+  // selectorId(hash) -> Set<node>
+  public static selectorToNodes: Map<string, Set<StyleNode>> = new Map();
+
+  // 获取某个 selectorId 对应的节点集合
+  public static getMatchedNodes(selectorId: string): Set<StyleNode> | undefined {
+    return this.selectorToNodes.get(selectorId);
+  }
+
+  // 添加节点
+  public static addMatchedNode(selectorId: string, node: StyleNode): void {
+    let set = this.selectorToNodes.get(selectorId);
+    if (!set) {
+      set = new Set<StyleNode>();
+      this.selectorToNodes.set(selectorId, set);
+    }
+    set.add(node);
+  }
+
+  // 删除节点（可选，看需不需要）
+  public static removeMatchedNode(selectorId: string, node: StyleNode): void {
+    const set = this.selectorToNodes.get(selectorId);
+    if (set) {
+      set.delete(node);
+      if (set.size === 0) {
+        this.selectorToNodes.delete(selectorId); // 避免空集合占内存
+      }
+    }
+  }
+  //-------------------------------------------------------------------------------
+
   public id: CssAttribute;
 
   public class: CssAttribute;
@@ -203,8 +234,16 @@ class SelectorsMap {
       .filter(sel => sel.sel.accumulateChanges(node, selectorsMatch, ssrNodes))
       //如果相等（差值为 0，为假值），就使用 a.pos - b.pos 决定顺序
       .sort((a, b) => a.sel.specificity - b.sel.specificity || a.pos - b.pos)
-      .map(docSel => docSel.sel);
-
+      .map(docSel => {
+        //---------------------------------------------------------------
+        if (docSel.sel.dynamic) {
+          const selectorId = docSel.sel.ruleSet.hash; // 用 hash 作为唯一 id
+          // 反向缓存：selector -> node
+          SelectorsMap.addMatchedNode(selectorId, node)
+        }
+        //---------------------------------------------------------------
+        return docSel.sel
+      });
     return selectorsMatch;
   }
 

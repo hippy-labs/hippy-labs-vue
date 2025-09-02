@@ -129,7 +129,7 @@ class SimpleSelector extends SelectorCore {
       return this.match(node);
     }
     if (this.mayMatch(node)) {
-      this.trackChanges(node, match);
+      this.trackChanges(node, match, this.ruleSet);
       return true;
     }
     return false;
@@ -158,8 +158,9 @@ class SimpleSelector extends SelectorCore {
    *
    * @param node - target node
    * @param match - SelectorsMatch
+   * @param ruleSet
    */
-  public trackChanges(node?: StyleNode, match?: SelectorsMatch): void {
+  public trackChanges(node?: StyleNode, match?: SelectorsMatch, ruleSet?: RuleSet): void {
     if (node && match) {
       /**
        * fixme This should be defined as an abstract method, but because some selectors do not need this method,
@@ -213,8 +214,8 @@ class SimpleSelectorSequence extends SimpleSelector {
     return this.selectors.every(sel => sel.mayMatch(node));
   }
 
-  trackChanges(node: StyleNode, match: SelectorsMatch): void {
-    this.selectors.forEach(sel => sel.trackChanges(node, match));
+  trackChanges(node: StyleNode, match: SelectorsMatch, ruleSet?: RuleSet): void {
+    this.selectors.forEach(sel => sel.trackChanges(node, match, ruleSet));
   }
 
   lookupSort(sorter: SelectorsMap, base: SelectorCore): void {
@@ -384,16 +385,27 @@ class PseudoClassSelector extends SimpleSelector {
     return `:${this.cssPseudoClass}${wrap(this.combinator)}`;
   }
 
-  match(): boolean {
-    return false;
+  match(node: StyleNode): boolean {
+    return node?.pseudoStates?.has(this.cssPseudoClass) ?? false;
   }
 
-  mayMatch(): boolean {
+  mayMatch(node: StyleNode): boolean {
     return true;
   }
 
-  trackChanges(node: StyleNode, match: SelectorsMatch): void {
+  trackChanges(node: StyleNode, match: SelectorsMatch, ruleSet?: RuleSet): void {
     match.addPseudoClass(node, this.cssPseudoClass);
+    //------------------------------------------------------------
+    if (ruleSet && ruleSet?.hash) {
+      if (!node._selectorIds) node._selectorIds = new Map();
+      let set = node._selectorIds.get(this.cssPseudoClass);
+      if (!set) {
+        set = new Set();
+        node._selectorIds.set(this.cssPseudoClass, set);
+      }
+      set.add(ruleSet!.hash);
+    }
+    //------------------------------------------------------------
   }
 }
 
@@ -519,7 +531,7 @@ class AttributeSelector extends SimpleSelector {
     return true;
   }
 
-  trackChanges(node: StyleNode, match: SelectorsMatch): void {
+  trackChanges(node: StyleNode, match: SelectorsMatch, ruleSet?: RuleSet): void {
     match.addAttribute(node, this.attribute);
   }
 }
@@ -602,7 +614,7 @@ class ChildGroup {
     return pass ? node : null;
   }
 
-  trackChanges(node, map) {
+  trackChanges(node, map, ruleSet?: RuleSet) {
     this.selectors.forEach((sel, i) => {
       if (i !== 0) {
         node = node.parentNode;
@@ -610,7 +622,7 @@ class ChildGroup {
       if (!node) {
         return;
       }
-      (sel as SimpleSelector).trackChanges(node, map);
+      (sel as SimpleSelector).trackChanges(node, map, ruleSet);
     });
   }
 }
@@ -668,7 +680,7 @@ class SiblingGroup {
     return pass ? node : null;
   }
 
-  trackChanges(node, map) {
+  trackChanges(node, map, ruleSet?: RuleSet) {
     this.selectors.forEach((sel, i) => {
       if (i !== 0) {
         //👉 TODO bug
@@ -678,7 +690,7 @@ class SiblingGroup {
       if (!node) {
         return;
       }
-      (sel as SimpleSelector).trackChanges(node, map);
+      (sel as SimpleSelector).trackChanges(node, map, ruleSet);
     });
   }
 }
@@ -852,7 +864,7 @@ class Selector extends SelectorCore {
       do {
         if (group.mayMatch(node)) {
           // 对每一个可能影响匹配的 node，记录其需要监听的属性/伪类
-          group.trackChanges(node, map);
+          group.trackChanges(node, map, this.ruleSet);
         }
       } while (
         node !== bound.right

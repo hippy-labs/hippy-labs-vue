@@ -24,6 +24,7 @@ import {
   getCssMap,
   type PropertiesMapType,
   type StyleNode,
+  SelectorsMap,
 } from "@hippy/hippy-vue-next-style-parser";
 import { toRaw } from "@vue/runtime-core";
 import { isFunction, isString } from "@vue/shared";
@@ -224,6 +225,16 @@ export class HippyElement extends HippyNode {
   //cssVariables
   public cssVariables: NativeNodeProps = {};
 
+  //---------------------------------------------------------
+  //pseudo state
+  public pseudoStates = new Set<string>([])
+
+  /** 伪类状态是否变化标识 */
+  private _pseudoStateChanged = false;
+
+  public _selectorIds?: Map<string, Set<string>>;
+
+  //---------------------------------------------------------
   // events map
   public events: NativeNodeProps;
 
@@ -389,6 +400,57 @@ export class HippyElement extends HippyNode {
     super.removeChild(child);
   }
 
+  //-----------------------------------------------------------
+  public setPseudoState(pseudo: string, active: boolean) {
+    if (!this.pseudoStates) {
+      this.pseudoStates = new Set();
+    }
+    const hasBefore = this.pseudoStates.has(pseudo);
+    if (active) {
+      this.pseudoStates.add(pseudo);
+    } else {
+      this.pseudoStates.delete(pseudo);
+    }
+    // 判断是否真的发生变化
+    this._pseudoStateChanged = hasBefore !== active;
+
+    if (this._pseudoStateChanged) {
+      //1.更新当前节点
+      this.updateNativeNode();
+      //2.更新相关联的节点
+      const matchedNodes = this.getMatchedNodesByPseudo(pseudo);
+      matchedNodes.forEach(n => {
+        (n as unknown as HippyElement).updateNativeNode();
+      })
+    }
+  }
+
+  public hasPseudoState(pseudo: string): boolean {
+    if (this.pseudoStates) {
+      return this.pseudoStates.has(pseudo)
+    }
+    return false
+  }
+
+  // 获取某个伪类对应的所有 nodes
+  public getMatchedNodesByPseudo(pseudo: string): Set<StyleNode> {
+    const result = new Set<StyleNode>()
+
+    if (!this._selectorIds) return result
+    const selectorIds = this._selectorIds.get(pseudo)
+    if (!selectorIds) return result
+
+    selectorIds.forEach(selectorId => {
+      //TODO 避免使用 as any
+      const nodes: Set<StyleNode> | undefined =
+          (SelectorsMap as any).getMatchedNodes(selectorId)
+      if (nodes) {
+        nodes.forEach(node => result.add(node))
+      }
+    })
+    return result
+  }
+  //-----------------------------------------------------------
   /**
    * Check if an attribute is included
    *
@@ -1071,7 +1133,7 @@ export class HippyElement extends HippyNode {
       if (!matched) {
         return;
       }
-      warn("[Element]: getCssMap --> matched: declarations:", this, matchedSelector.ruleSet?.declarations)
+      warn("[Element]: getCssMap --> matched: declarations:", this, matchedSelector)
 
       // 3. 遍历规则声明，逐条解析变量和函数
       if (matchedSelector.ruleSet?.declarations?.length) {

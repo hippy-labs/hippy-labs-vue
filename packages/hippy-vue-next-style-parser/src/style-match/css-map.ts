@@ -142,8 +142,8 @@ export function fromAstNodes(
       // use default hook when there is no hook passed in
       .map(createDeclaration(beforeLoadStyle ?? beforeLoadStyleHook));
     const selectors = rule.selectors.map(createSelector);
-
-    return new RuleSet(selectors, declarations, rule.hash);
+    //👉
+    return new RuleSet(selectors, declarations, rule.id);
   });
 }
 

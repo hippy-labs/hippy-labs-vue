@@ -32,6 +32,8 @@ export interface StyleNode {
   nextSibling: StyleNode;
   props?: any;
   attributes?: any;
+  pseudoStates: Set<string>
+  _selectorIds?: Map<string, Set<string>>;
 }
 
 /**

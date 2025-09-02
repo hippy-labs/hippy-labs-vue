@@ -52,34 +52,41 @@ function hippyVueCSSLoader(this: any, source: any) {
   sourceId += 1;
   const rulesAst = parsed.stylesheet.rules
     .filter((n: any) => n.type === "rule")
-    .map((n: any) => ({
-      hash: contentHash,
-      selectors: n.selectors,
-
-      declarations: n.declarations.map((dec: any) => {
-        let { value } = dec;
-        const isVariable = dec.property?.startsWith("--");
-        const isVariableColor =
-          dec.property?.startsWith("-") &&
-          typeof value === "string" &&
-          (value.includes("#") ||
-            value.includes("rgb") ||
-            value.includes("hls") ||
-            value.includes("hue") ||
-            value.trim() in colorNames);
-        if (
-            !isVariable && dec.property &&
-            (dec.property.toLowerCase().indexOf("color") > -1 || isVariableColor)
-        ) {
-          value = translateColor(value);
-        }
-        return {
-          type: dec.type,
-          property: dec.property,
-          value,
-        };
-      }),
-    }));
+    .map((n: any) => {
+      // 每条 rule 都生成新的 hash
+      const ruleHash = crypto
+          .createHash(hashType)
+          .update(n.selectors.join(",") + JSON.stringify(n.declarations))
+          .digest("hex");
+      return {
+        id: ruleHash,
+        hash: contentHash,
+        selectors: n.selectors,
+        declarations: n.declarations.map((dec: any) => {
+          let { value } = dec;
+          const isVariable = dec.property?.startsWith("--");
+          const isVariableColor =
+              dec.property?.startsWith("-") &&
+              typeof value === "string" &&
+              (value.includes("#") ||
+                  value.includes("rgb") ||
+                  value.includes("hls") ||
+                  value.includes("hue") ||
+                  value.trim() in colorNames);
+          if (
+              !isVariable && dec.property &&
+              (dec.property.toLowerCase().indexOf("color") > -1 || isVariableColor)
+          ) {
+            value = translateColor(value);
+          }
+          return {
+            type: dec.type,
+            property: dec.property,
+            value,
+          };
+        }),
+      }
+    });
 
   info("AST: " + JSON.stringify(rulesAst));
 

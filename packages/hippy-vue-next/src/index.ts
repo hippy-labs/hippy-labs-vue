@@ -311,6 +311,24 @@ export const createHippyApp = (
       );
     });
 
+
+  hippyApp.directive("pseudo", {
+    mounted(el: HippyElement, binding) {
+      const pseudo = binding.arg;
+      if (pseudo) {
+        const value = binding.value;
+        el.setPseudoState(pseudo, value);
+      }
+    },
+    updated(el: HippyElement, binding) {
+      const pseudo = binding.arg;
+      if (pseudo) {
+        const value = binding.value;
+        el.setPseudoState(pseudo, value);
+      }
+    },
+  });
+
   // return hippy vue instance
   return hippyApp;
 };
