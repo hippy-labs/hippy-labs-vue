@@ -74,6 +74,6 @@ export function patchStyle(
     });
     el.removeStyle(true);
     // update native node
-    el.setStyles(batchedStyles);
+    el.setInlineStyle(batchedStyles);
   }
 }

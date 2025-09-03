@@ -386,7 +386,7 @@ describe('runtime/element/hippy-element', () => {
 
     it('setStyles method should work correct', () => {
       const hippyElement = new HippyElement('div');
-      hippyElement.setStyles({
+      hippyElement.setInlineStyle({
         width: '101.1',
         flex: 1,
         textShadowOffset: { x: 20, y: 30 },

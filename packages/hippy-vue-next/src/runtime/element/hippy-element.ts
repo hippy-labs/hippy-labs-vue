@@ -225,7 +225,7 @@ export class HippyElement extends HippyNode {
   //cssVariables
   public cssVariables: NativeNodeProps = {};
 
-  //---------------------------------------------------------
+  //--------------------------伪类-------------------------------
   //pseudo state
   public pseudoStates = new Set<string>([])
 
@@ -234,6 +234,35 @@ export class HippyElement extends HippyNode {
 
   public _selectorIds?: Map<string, Set<string>>;
 
+  //-------------------------缓存--------------------------------
+  private __resolvedStyleCache: NativeNodeProps | null = null;
+
+  public invalidateResolvedStyleCache() {
+    this.__resolvedStyleCache = null;
+  }
+
+  public getCachedResolvedStyle() {
+    return this.__resolvedStyleCache;
+  }
+
+  public setCachedResolvedStyle(style) {
+    this.__resolvedStyleCache = style;
+  }
+
+  //-------------------------内联样式--------------------------------
+  private __inlineStyleDirty = false;
+
+  public isInlineStyleDirty(): boolean {
+    return this.__inlineStyleDirty;
+  }
+
+  public markInlineStyleClean(): void {
+    this.__inlineStyleDirty = false;
+  }
+
+  public markInlineStyleDirty(): void {
+    this.__inlineStyleDirty = true;
+  }
   //---------------------------------------------------------
   // events map
   public events: NativeNodeProps;
@@ -415,11 +444,14 @@ export class HippyElement extends HippyNode {
     this._pseudoStateChanged = hasBefore !== active;
 
     if (this._pseudoStateChanged) {
-      //1.更新当前节点
+      //1.重置缓存
+      this.invalidateResolvedStyleCache()
+      //2.更新当前节点
       this.updateNativeNode();
-      //2.更新相关联的节点
+      //3.更新相关联的节点
       const matchedNodes = this.getMatchedNodesByPseudo(pseudo);
       matchedNodes.forEach(n => {
+        (n as unknown as HippyElement).invalidateResolvedStyleCache();
         (n as unknown as HippyElement).updateNativeNode();
       })
     }
@@ -503,6 +535,12 @@ export class HippyElement extends HippyNode {
         !options.notToNative && this.updateNativeNode();
         return;
       }
+
+      //TODO 清除样式缓存
+      if (key == "class" || key == "id") {
+        this.invalidateResolvedStyleCache();
+      }
+
       switch (key) {
         case "class": {
           const newClassList = new Set(getStyleClassList(value));
@@ -629,7 +667,7 @@ export class HippyElement extends HippyNode {
    *
    * @param batchStyles - batched style to set
    */
-  public setStyles(batchStyles: Record<string, NeedToTyped>) {
+  public setInlineStyle(batchStyles: Record<string, NeedToTyped>) {
     if (!batchStyles || typeof batchStyles !== "object") {
       return;
     }
@@ -640,6 +678,8 @@ export class HippyElement extends HippyNode {
 
     info("tag: " + this.tagName + " setStyles: batchStyles: ", batchStyles);
 
+    //
+    this.markInlineStyleDirty();
     this.updateNativeNode();
   }
 
@@ -1051,7 +1091,7 @@ export class HippyElement extends HippyNode {
   public setNativeProps(nativeProps: NeedToTyped): void {
     if (nativeProps) {
       const { style } = nativeProps;
-      this.setStyles(style);
+      this.setInlineStyle(style);
     }
   }
 
@@ -1115,6 +1155,23 @@ export class HippyElement extends HippyNode {
    * get the style attribute of the node according to the global style sheet
    */
   private getNativeStyles(): NativeNodeProps {
+    //-------------------------------缓存逻辑------------------------------------------
+    //1. InlineStyle
+    if (
+        this.getCachedResolvedStyle() &&
+        this.isInlineStyleDirty()
+    ) {
+      const merged = {...this.getCachedResolvedStyle(), ...this.getInlineStyle()};
+      this.markInlineStyleClean();
+      return merged;
+    }
+
+    // 2.
+    if (this.getCachedResolvedStyle()) {
+      return this.getCachedResolvedStyle() ?? {};
+    }
+
+    //-------------------------------------------------------------------------
     let style: NativeNodeProps = {};
 
     // warn(`🚀 [Element] -> getNativeStyles() started`, this);
@@ -1159,6 +1216,11 @@ export class HippyElement extends HippyNode {
     // 5. 合并 inline 样式（中优先级）并做 rem 转换
     // finally, get the style from the style attribute of the node and process the rem unit
     style = normalizeStyleValues(this, {...style, ...this.getInlineStyle()});
+
+    //------------------------缓存样式---------------------------------------
+    this.setCachedResolvedStyle(style)
+    this.markInlineStyleClean();
+    //---------------------------------------------------------------
 
     info("tag: " + this.tagName + " style: ", style, " ✅ ");
 

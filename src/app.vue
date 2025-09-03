@@ -6,7 +6,7 @@
       这是主标签
     </div>
     <div class="notice">
-      <p class="card-text">直接子提示</p>
+      <p class="card-text" :style="{ backgroundColor: backgroundColor }">直接子提示</p>
       <div class="inner-notice">
         <p class="card-text">嵌套子提示</p>
         <div class="deep">
@@ -23,6 +23,9 @@
     <div class="card" @click="toggleActive">
       <p>点击切换伪类 active 状态</p>
     </div>
+    <div class="card" @click="toggleStyle">
+      <p>点击切换样式</p>
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -36,6 +39,8 @@ export default defineComponent({
   setup() {
     const focusValue = ref<boolean>(false);
     const activeValue = ref<boolean>(false);
+    const backgroundColor = ref<string>('red')
+    let flag = false
 
     function toggleFocus() {
       focusValue.value = !focusValue.value;
@@ -45,11 +50,22 @@ export default defineComponent({
       activeValue.value = !activeValue.value;
     }
 
+    function toggleStyle() {
+      if (flag) {
+        backgroundColor.value = 'red';
+      } else {
+        backgroundColor.value = 'purple';
+      }
+      flag = !flag;
+    }
+
     return {
+      backgroundColor,
       toggleFocus,
       toggleActive,
       focusValue,
       activeValue,
+      toggleStyle
     };
   },
 });
