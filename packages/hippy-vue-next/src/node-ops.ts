@@ -27,6 +27,7 @@ import type { HippyCommentElement } from './runtime/element/hippy-comment-elemen
 import type { HippyNode } from './runtime/node/hippy-node';
 import type { HippyText } from './runtime/text/hippy-text';
 import { unCacheNodeOnIdle } from './util/node';
+import {info} from "./util/log";
 
 /**
  * Insert the node at the specified position
@@ -136,6 +137,7 @@ function nextSibling(node: HippyNode): HippyNode | null {
  * @param id - scoped id
  */
 function setScopeId(element: HippyElement, id: string) {
+  info("[setScopeId]: HippyElement: ", element, " ScopeId: " + id);
   element.setStyleScope(id);
 }
 

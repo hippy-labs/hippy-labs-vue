@@ -24,6 +24,7 @@ import { callWithAsyncErrorHandling, ErrorCodes } from '@vue/runtime-core';
 import type { CallbackType } from '../types';
 import type { HippyElement } from '../runtime/element/hippy-element';
 import { lowerFirstLetter } from '../util';
+import {info} from "../util/log";
 
 // event callback type
 type EventValue = CallbackType | CallbackType[];
@@ -106,6 +107,9 @@ export function patchEvent(
   nextValue: EventValue | null,
   instance: ComponentInternalInstance | null = null,
 ): void {
+
+  info("[patchEvent]: tag: " + rawEl.tagName + " prevValue: ", prevValue, " newValue: ", nextValue);
+
   // vei = vue event invokers
   const el = rawEl;
   const invokers: Record<string, Invoker | undefined> = el._vei ?? (el._vei = {});

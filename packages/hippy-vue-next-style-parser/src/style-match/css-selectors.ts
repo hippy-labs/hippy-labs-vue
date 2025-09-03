@@ -422,6 +422,7 @@ const getNodeAttrVal = (node, attribute) => {
   if (typeof attr !== 'undefined') {
     return attr;
   }
+  //👉 TODO node?.styleScopeId
   if (Array.isArray(node?.styleScopeId) && node?.styleScopeId?.includes(attribute)) {
     return attribute;
   }

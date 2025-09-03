@@ -550,10 +550,6 @@ export class HippyElement extends HippyNode {
           }
           this.classList = newClassList;
 
-          info(
-            "tag: " + this.tagName + " setAttribute: classList: ",
-            this.classList,
-          );
           // update current node and child nodes
           !options.notToNative && this.updateNativeNode(true);
           return;
@@ -563,7 +559,6 @@ export class HippyElement extends HippyNode {
             return;
           }
           this.id = value;
-          info("tag: " + this.tagName + " setAttribute: id: ", this.id);
           // update current node and child nodes
           !options.notToNative && this.updateNativeNode(true);
           return;
@@ -1115,6 +1110,7 @@ export class HippyElement extends HippyNode {
   }
 
   /**
+   * 👉 TODO
    * save scoped id for element
    *
    * @param scopeStyleId - scoped style id
@@ -1128,6 +1124,7 @@ export class HippyElement extends HippyNode {
   }
 
   /**
+   * 👉 TODO
    * get style scoped id
    */
   public get styleScopeId() {

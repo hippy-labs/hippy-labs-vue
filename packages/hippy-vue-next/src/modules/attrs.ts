@@ -19,6 +19,7 @@
  */
 import type { NeedToTyped } from '../types';
 import type { HippyElement } from '../runtime/element/hippy-element';
+import {info} from "../util/log";
 
 /**
  * set element attribute value
@@ -34,6 +35,7 @@ export function patchAttr(
   prevValue: NeedToTyped,
   nextValue: NeedToTyped,
 ): void {
+  info("[patchAttr]: tag: " + el.tagName + " prevValue: ", prevValue, " newValue: ", nextValue);
   // set attr when next value is not equal before value
   if (prevValue !== nextValue) {
     el.setAttribute(key, nextValue);

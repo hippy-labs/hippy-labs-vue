@@ -51,7 +51,7 @@ export function patchStyle(
   const el = rawEl;
   const batchedStyles: NeedToTyped = {};
 
-  info("tag: " + el.tagName + "patchStyle: ", " prev:", prev, " next:", next);
+  info("[patchStyle]: tag: " + el.tagName + " prevValue: ", prev, " newValue: ", next);
 
   if (isStyleExisted(el, prev, next)) {
     // if the previous and next attributes are the same, skip the patch calculation.

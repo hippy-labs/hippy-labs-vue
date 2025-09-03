@@ -28,7 +28,7 @@ import { info } from "../util/log";
  * @param newValue - new value
  */
 export function patchClass(el: HippyElement, newValue: string): void {
-  info("tag: " + el.tagName + " patchClass:", " newValue:", newValue);
+  info("[patchClass]: tag: " + el.tagName + " newValue: ", newValue);
 
   let value = newValue;
 
